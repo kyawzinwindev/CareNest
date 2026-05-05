@@ -18,7 +18,7 @@ class UsersTable
                 TextColumn::make('name')->searchable(),
                 TextColumn::make('email')->searchable(),
                 TextColumn::make('role')
-                    ->formatStateUsing(fn ($state) => \App\Enums\Role::from($state)->label()),
+                    ->formatStateUsing(fn ($state) => $state->label()),
                 TextColumn::make('created_at')->dateTime(),
             ])
             ->filters([
