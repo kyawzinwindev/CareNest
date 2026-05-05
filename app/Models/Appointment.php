@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\AppointmentStatus;
-use App\PaymentType;
+use App\Enums\AppointmentStatus;
+use App\Enums\PaymentType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;

@@ -1,9 +1,10 @@
 <?php
 
-namespace App;
+namespace App\Enums;
 
 enum PaymentMethod: string
 {
-    case Card = 'card';
+    case CARD = 'card';
     case QR = 'qr';
 }
+
