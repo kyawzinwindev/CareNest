@@ -2,6 +2,10 @@
 
 namespace App\Enums;
 
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+
 enum Role: string
 {
     case ROOT = 'root';
@@ -21,9 +25,12 @@ enum Role: string
 
     public static function options(): array
     {
+        $user = Auth::user();
+
         return collect(self::cases())
-            ->mapWithKeys(fn ($case) => [
-                $case->value => ucfirst($case->value),
+            ->filter(fn($role) => Gate::forUser($user)->allows('assignRole',[User::class,$role]))
+            ->mapWithKeys(fn($case) => [
+                $case->value => $case->label(),
             ])
             ->toArray();
     }
