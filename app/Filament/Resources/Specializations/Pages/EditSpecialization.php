@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\Users\Pages;
+namespace App\Filament\Resources\Specializations\Pages;
 
-use App\Filament\Resources\Users\UserResource;
+use App\Filament\Resources\Specializations\SpecializationResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use Override;
 
-class EditUser extends EditRecord
+class EditSpecialization extends EditRecord
 {
-    protected static string $resource = UserResource::class;
+    protected static string $resource = SpecializationResource::class;
 
     protected function getHeaderActions(): array
     {

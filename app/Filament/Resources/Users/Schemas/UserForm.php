@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Users\Schemas;
 use App\Enums\Role;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class UserForm
@@ -25,6 +26,13 @@ class UserForm
                     ->options(Role::options())
                     ->default(Role::PATIENT->value)
                     ->required()
-            ]);
+                    ->live(),
+                Select::make('specialization_id')
+                    ->label("Doctor Specialization")
+                    ->relationship('doctor.specialization', 'name')
+                    ->required()
+                    ->visible(fn (Get $get) => $get('role') === Role::DOCTOR->value)
+            ])
+            ->columns(1);
     }
 }
