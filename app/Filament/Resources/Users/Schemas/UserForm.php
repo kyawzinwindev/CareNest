@@ -3,8 +3,11 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Enums\Role;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
@@ -24,14 +27,36 @@ class UserForm
                     ->label('Password'),
                 Select::make('role')
                     ->options(Role::options())
-                    ->default(Role::PATIENT->value)
                     ->required()
                     ->live(),
-                Select::make('specialization_id')
-                    ->label("Doctor Specialization")
-                    ->relationship('doctor.specialization', 'name')
-                    ->required()
-                    ->visible(fn (Get $get) => $get('role') === Role::DOCTOR->value)
+                Group::make()
+                    ->relationship('doctor')
+                    ->schema([
+                        Select::make('specialization_id')
+                            ->label("Doctor Specialization")
+                            ->relationship('specialization', 'name')
+                            ->required()
+                    ])
+                    ->visible(fn(Get $get) => $get('role') === Role::DOCTOR->value),
+                Group::make()
+                    ->relationship('patient')
+                    ->schema([
+                        Grid::make(3)
+                            ->schema([
+                                TextInput::make('weight')
+                                    ->label('Weight (kg)')
+                                    ->numeric()
+                                    ->required(),
+                                TextInput::make('height')
+                                    ->label('Height (cm)')
+                                    ->numeric()
+                                    ->required(),
+                                DatePicker::make('dob')
+                                    ->label('Date of Birth')
+                                    ->required(),
+                            ]),
+                    ])
+                    ->visible(fn(Get $get) => $get('role') === Role::PATIENT->value),
             ])
             ->columns(1);
     }
