@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Enums\Role;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class UsersTable
@@ -22,7 +24,8 @@ class UsersTable
                 TextColumn::make('created_at')->dateTime(),
             ])
             ->filters([
-                //
+                SelectFilter::make('role')
+                    ->options(Role::options())
             ])
             ->recordActions([
                 EditAction::make(),
