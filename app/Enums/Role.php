@@ -25,10 +25,8 @@ enum Role: string
 
     public static function optionsBasedOnUserRole(): array
     {
-        $user = Auth::user();
-
         return collect(self::cases())
-            ->filter(fn($role) => Gate::forUser($user)->allows('assignRole', [User::class, $role]))
+            ->filter(fn($role) => auth()->user()->can('assignRole', [User::class, $role]))
             ->mapWithKeys(fn($case) => [
                 $case->value => $case->label(),
             ])
