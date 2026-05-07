@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
@@ -12,7 +13,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -28,7 +29,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->role != Role::PATIENT;
     }
 
     /**
@@ -36,7 +37,8 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return false;
+        return $model->role->value > $user->role->value
+        || $model->id === $user->id;
     }
 
     /**
@@ -44,7 +46,8 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return false;
+        return $model->role->value > $user->role->value
+        || $model->id === $user->id;
     }
 
     /**
@@ -52,7 +55,8 @@ class UserPolicy
      */
     public function restore(User $user, User $model): bool
     {
-        return false;
+        return $model->role->value > $user->role->value
+        || $model->id === $user->id;
     }
 
     /**
@@ -60,6 +64,15 @@ class UserPolicy
      */
     public function forceDelete(User $user, User $model): bool
     {
-        return false;
+        return $model->role->value > $user->role->value
+        || $model->id === $user->id;
+    }
+
+    /**
+     * Determine whether the user can assign the role to created user
+     */
+    public function assignRole(User $user, Role $role): bool
+    {
+        return $user->role->value < $role->value;
     }
 }
