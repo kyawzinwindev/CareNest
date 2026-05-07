@@ -7,6 +7,8 @@ namespace App\Models;
 use App\Enums\Role;
 use App\Policies\UserPolicy;
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
@@ -14,11 +16,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
+use Override;
 
 #[Fillable(['name', 'email', 'password', 'role'])]
 #[Hidden(['password', 'remember_token'])]
-#[UsePolicy(UserPolicy::class)]
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -35,6 +38,12 @@ class User extends Authenticatable
             'password' => 'hashed',
             'role' => Role::class
         ];
+    }
+
+    #[Override]
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->role !== Role::PATIENT;
     }
 
     public function doctor(): HasOne

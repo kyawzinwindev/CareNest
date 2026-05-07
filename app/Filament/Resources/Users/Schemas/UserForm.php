@@ -10,7 +10,6 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Auth;
 
 class UserForm
 {
@@ -27,7 +26,7 @@ class UserForm
                     ->dehydrated(fn($state) => filled($state))
                     ->label('Password'),
                 Select::make('role')
-                    ->options(Role::options())
+                    ->options(Role::optionsBasedOnUserRole())
                     ->required()
                     ->live(),
                 Group::make()
@@ -38,7 +37,7 @@ class UserForm
                             ->relationship('specialization', 'name')
                             ->required()
                     ])
-                    ->visible(fn(Get $get) => $get('role') === Role::DOCTOR->value),
+                    ->visible(fn(Get $get) => $get('role') == Role::DOCTOR->value),
                 Group::make()
                     ->relationship('patient')
                     ->schema([
@@ -57,7 +56,7 @@ class UserForm
                                     ->required(),
                             ]),
                     ])
-                    ->visible(fn(Get $get) => $get('role') === Role::PATIENT->value),
+                    ->visible(fn(Get $get) => $get('role') == Role::PATIENT->value),
             ])
             ->columns(1);
     }

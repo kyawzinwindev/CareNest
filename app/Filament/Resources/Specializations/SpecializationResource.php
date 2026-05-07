@@ -13,12 +13,19 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Override;
 
 class SpecializationResource extends Resource
 {
     protected static ?string $model = Specialization::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    #[Override]
+    public static function getNavigationSort(): ?int
+    {
+        return 2;
+    }
 
     public static function form(Schema $schema): Schema
     {

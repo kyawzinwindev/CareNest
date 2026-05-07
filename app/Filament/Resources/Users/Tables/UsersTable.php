@@ -25,7 +25,7 @@ class UsersTable
             ])
             ->filters([
                 SelectFilter::make('role')
-                    ->options(Role::options())
+                    ->options(Role::optionsForFilter())
             ])
             ->recordActions([
                 EditAction::make(),
