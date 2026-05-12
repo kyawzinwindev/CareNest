@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -12,7 +13,8 @@ class Service extends Model
         'name',
         'description',
         'price',
-        'required_prepayment'
+        'required_prepayment',
+        'specialization_id'
     ];
 
     protected function cast(): array
@@ -31,5 +33,10 @@ class Service extends Model
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    public function specialization(): BelongsTo
+    {
+        return $this->belongsTo(Specialization::class);
     }
 }

@@ -19,7 +19,7 @@ class SpecializationResource extends Resource
 {
     protected static ?string $model = Specialization::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::AcademicCap;
 
     #[Override]
     public static function getNavigationSort(): ?int

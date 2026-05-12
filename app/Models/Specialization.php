@@ -13,5 +13,10 @@ class Specialization extends Model
     {
         return $this->hasMany(Doctor::class)->chaperone();
     }
+
+    public function services(): HasMany
+    {
+        return $this->hasMany(Service::class);
+    }
 }
 
