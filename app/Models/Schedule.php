@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use App\Enums\TimeSlotStatus;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Override;
 
 class Schedule extends Model
 {
@@ -15,6 +18,35 @@ class Schedule extends Model
         'end_time',
         'slot_duration_minutes'
     ];
+
+    #[Override]
+    protected static function booted(): void
+    {
+        static::created(function ($schedule) {
+
+            $start = Carbon::parse($schedule->start_time);
+            $end = Carbon::parse($schedule->end_time);
+
+            while($start < $end) {
+                $slotEnd = $start->copy()
+                    ->addMinutes($schedule->slot_duration_minutes);
+
+                if($slotEnd > $end){
+                    break;
+                }
+
+                TimeSlot::create([
+                    'schedule_id' => $schedule->id,
+                    'start_time' => $start->format("H:i:s"),
+                    'end_time' => $slotEnd->format("H:i:s"),
+                    'status' => TimeSlotStatus::AVAILABLE
+                ]);
+
+                $start->addMinutes($schedule->slot_duration_minutes);
+            }
+
+        });
+    }
 
     protected function cast(): array
     {
