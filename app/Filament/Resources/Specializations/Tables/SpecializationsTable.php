@@ -15,7 +15,9 @@ class SpecializationsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
             ->columns([
+                TextColumn::make("id")->label("ID"),
                 TextColumn::make("name")->searchable(),
                 TextColumn::make("description")
                     ->limit(50)
