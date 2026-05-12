@@ -37,6 +37,7 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
+        // dd($user->id);
         return $model->role->value > $user->role->value
         || $model->id === $user->id;
     }
