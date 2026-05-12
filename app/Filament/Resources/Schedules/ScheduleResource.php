@@ -24,7 +24,7 @@ class ScheduleResource extends Resource
     #[Override]
     public static function getNavigationSort(): ?int
     {
-        return 5;
+        return 4;
     }
 
 

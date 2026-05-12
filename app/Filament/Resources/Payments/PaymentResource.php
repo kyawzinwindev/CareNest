@@ -27,7 +27,7 @@ class PaymentResource extends Resource
     #[Override]
     public static function getNavigationSort(): ?int
     {
-        return 4;
+        return 6;
     }
 
     public static function form(Schema $schema): Schema

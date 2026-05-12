@@ -44,9 +44,9 @@ class PaymentsTable
                 TextColumn::make('status')
                     ->badge()
                     ->colors([
-                        'warning' => PaymentStatus::PENDING,
-                        'success' => PaymentStatus::PAID,
-                        'danger' => PaymentStatus::FAILED,
+                        'warning' => PaymentStatus::PENDING->value,
+                        'success' => PaymentStatus::PAID->value,
+                        'danger' => PaymentStatus::FAILED->value,
                     ]),
             ])
             ->filters([
@@ -60,7 +60,7 @@ class PaymentsTable
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->visible(fn($record) => $record->status === PaymentStatus::PENDING)
+                    ->visible(fn($record) => $record->status === PaymentStatus::PENDING->value)
                     ->action(function ($record) {
                         $record->update([
                             'status' => PaymentStatus::PAID,
@@ -75,7 +75,7 @@ class PaymentsTable
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->visible(fn($record) => $record->status === PaymentStatus::PENDING)
+                    ->visible(fn($record) => $record->status === PaymentStatus::PENDING->value)
                     ->action(function ($record) {
                         $record->update([
                             'status' => PaymentStatus::FAILED,
