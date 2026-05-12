@@ -6,6 +6,7 @@ use App\Enums\AppointmentStatus;
 use App\Enums\PaymentType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Appointment extends Model
@@ -13,10 +14,8 @@ class Appointment extends Model
     protected $fillable = [
         'patient_id',
         'doctor_id',
-        'schedule_id',
         'service_id',
-        'start_time',
-        'end_time',
+        'time_slot_id',
         'payment_type',
         'status'
     ];
@@ -24,8 +23,6 @@ class Appointment extends Model
     protected function cast(): array
     {
         return [
-            'start_time' => 'datetime',
-            'end_time' => 'datetime',
             'payment_type' => PaymentType::class,
             'status' => AppointmentStatus::class
         ];
@@ -41,14 +38,14 @@ class Appointment extends Model
         return $this->belongsTo(Doctor::class);
     }
 
-    public function schedule(): BelongsTo
-    {
-        return $this->belongsTo(Schedule::class);
-    }
-
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
+    }
+
+    public function time_slot(): BelongsTo
+    {
+        return $this->belongsTo(TimeSlot::class);
     }
 
     public function payment(): HasOne

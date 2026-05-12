@@ -20,8 +20,6 @@ class Schedule extends Model
     {
         return [
             'date' => 'date',
-            'start_time' => 'datetime',
-            'end_time' =>  'datetime',
             'slot_duration_minutes' => 'integer'
         ];
     }
@@ -31,8 +29,8 @@ class Schedule extends Model
         return $this->belongsTo(Doctor::class);
     }
 
-    public function appointments(): HasMany
+    public function time_slot(): HasMany
     {
-        return $this->hasMany(Appointment::class);
+        return $this->hasMany(TimeSlot::class);
     }
 }
