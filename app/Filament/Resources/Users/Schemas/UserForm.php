@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Enums\Role;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -10,6 +11,8 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+
+use function Laravel\Prompts\title;
 
 class UserForm
 {
@@ -36,6 +39,27 @@ class UserForm
                             ->label("Doctor Specialization")
                             ->relationship('specialization', 'name')
                             ->required()
+                            ->live(),
+
+                        CheckboxList::make('services')
+                            ->relationship(
+                                name: 'services',
+                                titleAttribute: 'name'
+                            )
+                            ->options(function (Get $get) {
+                                $specializationId = $get('specialization_id');
+
+                                if (!$specializationId) {
+                                    return [];
+                                }
+
+                                return \App\Models\Service::query()
+                                    ->where('specialization_id', $specializationId)
+                                    ->pluck('name', 'id');
+                            })
+                            ->columns(2)
+                            ->searchable()
+                            ->required(),
                     ])
                     ->visible(fn(Get $get) => $get('role') == Role::DOCTOR->value),
                 Group::make()
