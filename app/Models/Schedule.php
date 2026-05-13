@@ -23,28 +23,7 @@ class Schedule extends Model
     protected static function booted(): void
     {
         static::created(function ($schedule) {
-
-            $start = Carbon::parse($schedule->start_time);
-            $end = Carbon::parse($schedule->end_time);
-
-            while($start < $end) {
-                $slotEnd = $start->copy()
-                    ->addMinutes($schedule->slot_duration_minutes);
-
-                if($slotEnd > $end){
-                    break;
-                }
-
-                TimeSlot::create([
-                    'schedule_id' => $schedule->id,
-                    'start_time' => $start->format("H:i:s"),
-                    'end_time' => $slotEnd->format("H:i:s"),
-                    'status' => TimeSlotStatus::AVAILABLE
-                ]);
-
-                $start->addMinutes($schedule->slot_duration_minutes);
-            }
-
+            $schedule->generateTimeSlots();
         });
     }
 
@@ -61,8 +40,32 @@ class Schedule extends Model
         return $this->belongsTo(Doctor::class);
     }
 
-    public function time_slot(): HasMany
+    public function time_slots(): HasMany
     {
         return $this->hasMany(TimeSlot::class);
+    }
+
+    public function generateTimeSlots(): void
+    {
+        $start = Carbon::parse($this->start_time);
+        $end = Carbon::parse($this->end_time);
+
+        while ($start < $end) {
+            $slotEnd = $start->copy()
+                ->addMinutes($this->slot_duration_minutes);
+
+            if ($slotEnd > $end) {
+                break;
+            }
+
+            TimeSlot::create([
+                'schedule_id' => $this->id,
+                'start_time' => $start->format("H:i:s"),
+                'end_time' => $slotEnd->format("H:i:s"),
+                'status' => TimeSlotStatus::AVAILABLE
+            ]);
+
+            $start->addMinutes($this->slot_duration_minutes);
+        }
     }
 }

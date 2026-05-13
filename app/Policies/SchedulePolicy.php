@@ -22,7 +22,7 @@ class SchedulePolicy
      */
     public function view(User $user, Schedule $schedule): bool
     {
-        return false;
+        return $user->role !== Role::PATIENT || $user->doctor->id === $schedule->doctor_id;
     }
 
     /**
