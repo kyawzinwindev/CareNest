@@ -21,12 +21,12 @@ class AppointmentsTable
                     ->label("Patient"),
                 TextColumn::make("doctor.user.name")
                     ->label("Doctor"),
-                TextColumn::make("schedule.date")
+                TextColumn::make("time_slot.schedule.date")
                     ->label("Schedule Date"),
                 TextColumn::make("service.name")
                     ->label("Service"),
-                TextColumn::make("start_time")->label("Start Time"),
-                TextColumn::make("end_time")->label("End Time"),
+                TextColumn::make("time_slot.start_time")->label("Start Time"),
+                TextColumn::make("time_slot.end_time")->label("End Time"),
                 TextColumn::make('payment_type')
                     ->label("Payment Type")
                     ->badge(),
@@ -34,16 +34,15 @@ class AppointmentsTable
                     ->badge()
                     ->colors([
                         'warning' => AppointmentStatus::PENDING->value,
-                        'info' => AppointmentStatus::CONFIRMED->value,
+                        'success' => AppointmentStatus::CONFIRMED->value,
                         'danger' => AppointmentStatus::CANCELLED->value,
-                        'success' => AppointmentStatus::COMPLETED->value,
                     ]),
             ])
             ->filters([
                 //
             ])
             ->recordActions([
-                EditAction::make(),
+                // EditAction::make(),
                 DeleteAction::make()
             ])
             ->toolbarActions([

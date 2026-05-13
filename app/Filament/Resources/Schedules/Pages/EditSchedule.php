@@ -26,7 +26,6 @@ class EditSchedule extends EditRecord
             ->exists();
 
         if ($hasAppointments) {
-
             Notification::make()
                 ->title('Schedule cannot be updated')
                 ->body('Some time slots already have appointments.')
