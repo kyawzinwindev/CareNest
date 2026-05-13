@@ -7,7 +7,10 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class AppointmentsTable
@@ -39,7 +42,29 @@ class AppointmentsTable
                     ]),
             ])
             ->filters([
-                //
+                SelectFilter::make("doctor")
+                    ->relationship(
+                        'doctor',
+                        'id',
+                        fn($query) => $query->with('user')
+                    )
+                    ->getOptionLabelFromRecordUsing(
+                        fn($record) => $record->user->name
+                    )
+                    ->searchable()
+                    ->preload(),
+
+                SelectFilter::make("patient")
+                    ->relationship(
+                        'patient',
+                        'id',
+                        fn($query) => $query->with('user')
+                    )
+                    ->getOptionLabelFromRecordUsing(
+                        fn($record) => $record->user->name
+                    )
+                    ->searchable()
+                    ->preload(),
             ])
             ->recordActions([
                 // EditAction::make(),
