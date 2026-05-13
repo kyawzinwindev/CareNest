@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('user_id');
+            $table->foreignId('user_id')
+                ->constrained()
+                ->restrictOnDelete();;
             $table->decimal('weight', 8, 2);
             $table->decimal('height', 8, 2);
             $table->date('dob');

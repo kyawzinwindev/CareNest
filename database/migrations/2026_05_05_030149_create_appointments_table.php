@@ -13,10 +13,18 @@ return new class extends Migration
     {
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('patient_id');
-            $table->bigInteger('doctor_id');
-            $table->bigInteger('service_id');
-            $table->bigInteger('time_slot_id');
+            $table->foreignId('patient_id')
+                ->constrained()
+                ->restrictOnDelete();
+            $table->foreignId('doctor_id')
+                ->constrained()
+                ->restrictOnDelete();
+            $table->foreignId('service_id')
+                ->constrained()
+                ->restrictOnDelete();
+            $table->foreignId('time_slot_id')
+                ->constrained()
+                ->restrictOnDelete();
             $table->string('payment_type');
             $table->string('status');
             $table->timestamps();

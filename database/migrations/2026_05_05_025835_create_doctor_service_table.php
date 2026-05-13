@@ -13,8 +13,12 @@ return new class extends Migration
     {
         Schema::create('doctor_service', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('doctor_id');
-            $table->bigInteger('service_id');
+            $table->foreignId('doctor_id')
+                ->constrained()
+                ->restrictOnDelete();
+            $table->foreignId('service_id')
+                ->constrained()
+                ->restrictOnDelete();;
             $table->timestamps();
         });
     }

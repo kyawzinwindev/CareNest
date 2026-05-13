@@ -17,7 +17,9 @@ return new class extends Migration
             $table->string('method');
             $table->string('status');
             $table->string('screenshot')->nullable();
-            $table->bigInteger('appointment_id');
+            $table->foreignId('appointment_id')
+                ->constrained()
+                ->restrictOnDelete();
             $table->time('paid_at');
             $table->timestamps();
         });
