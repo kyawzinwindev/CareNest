@@ -62,7 +62,19 @@ class TimeSlotsRelationManager extends RelationManager
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 SelectColumn::make('status')
-                    ->options(TimeSlotStatus::options())
+                    ->options(function ($record) {
+
+                        if ($record->status === TimeSlotStatus::BOOKED) {
+                            return [
+                                TimeSlotStatus::BOOKED->value => 'Booked',
+                            ];
+                        }
+
+                        return [
+                            TimeSlotStatus::AVAILABLE->value => 'Available',
+                            TimeSlotStatus::UNAVAILABLE->value => 'Unavailable',
+                        ];
+                    })
                     ->disabled(fn($record) => $record->status === TimeSlotStatus::BOOKED),
             ])
             ->filters([
