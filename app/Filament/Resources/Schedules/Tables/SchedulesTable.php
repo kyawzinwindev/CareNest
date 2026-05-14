@@ -8,10 +8,12 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\QueryException;
 
 class SchedulesTable
 {
@@ -56,7 +58,25 @@ class SchedulesTable
             ->recordActions([
                 ViewAction::make(),
                 // EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                ->successNotification(null)
+                    ->action(function ($record) {
+                        try {
+                            $record->delete();
+
+                            Notification::make()
+                                ->title('Deleted successfully')
+                                ->success()
+                                ->send();
+                        } catch (QueryException $e) {
+
+                            Notification::make()
+                                ->title('Cannot delete schedule')
+                                ->body('There have appointments on this schedule. Please delete them first!')
+                                ->danger()
+                                ->send();
+                        }
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

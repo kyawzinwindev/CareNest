@@ -6,10 +6,12 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\QueryException;
 
 class ServicesTable
 {
@@ -46,6 +48,24 @@ class ServicesTable
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make()
+                ->successNotification(null)
+                    ->action(function ($record) {
+                        try {
+                            $record->delete();
+
+                            Notification::make()
+                                ->title('Deleted successfully')
+                                ->success()
+                                ->send();
+                        } catch (QueryException $e) {
+
+                            Notification::make()
+                                ->title('Cannot delete service')
+                                ->body('There have appointments on this service. Please delete them first!')
+                                ->danger()
+                                ->send();
+                        }
+                    })
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

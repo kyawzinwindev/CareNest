@@ -7,8 +7,10 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\QueryException;
 
 class SpecializationsTable
 {
@@ -32,6 +34,23 @@ class SpecializationsTable
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make()
+                ->successNotification(null)
+                    ->action(function ($record) {
+                        try {
+                            $record->delete();
+
+                            Notification::make()
+                                ->title('Deleted successfully')
+                                ->success()
+                                ->send();
+                        } catch (QueryException $e) {
+                            Notification::make()
+                                ->title('Cannot delete specialization')
+                                ->body('Please delete related records first.')
+                                ->danger()
+                                ->send();
+                        }
+                    })
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
