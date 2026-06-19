@@ -27,7 +27,7 @@ class Schedule extends Model
         });
     }
 
-    protected function cast(): array
+    protected function casts(): array
     {
         return [
             'date' => 'date',

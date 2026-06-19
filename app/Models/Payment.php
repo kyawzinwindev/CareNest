@@ -18,7 +18,7 @@ class Payment extends Model
         'paid_at'
     ];
 
-    protected function cast(): array
+    protected function casts(): array
     {
         return [
             'amount' => 'decimal:2',

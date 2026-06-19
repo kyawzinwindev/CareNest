@@ -20,7 +20,7 @@ class Appointment extends Model
         'status'
     ];
 
-    protected function cast(): array
+    protected function casts(): array
     {
         return [
             'payment_type' => PaymentType::class,

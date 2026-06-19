@@ -15,7 +15,7 @@ class Patient extends Model
         'dob'
     ];
 
-    protected function cast(): array
+    protected function casts(): array
     {
         return [
             'weight' => 'decimal:2',
