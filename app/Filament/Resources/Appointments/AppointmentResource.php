@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Appointments;
 
+use App\Enums\Role;
 use App\Filament\Resources\Appointments\Pages\CreateAppointment;
 use App\Filament\Resources\Appointments\Pages\EditAppointment;
 use App\Filament\Resources\Appointments\Pages\ListAppointments;
@@ -13,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Override;
 
 class AppointmentResource extends Resource
@@ -26,6 +28,19 @@ class AppointmentResource extends Resource
     {
         return 5;
     }
+
+    #[Override]
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (auth()->user()->role === Role::DOCTOR) {
+            $query->where('doctor_id', auth()->user()->doctor?->id);
+        }
+
+        return $query;
+    }
+
 
     public static function form(Schema $schema): Schema
     {

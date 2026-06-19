@@ -48,6 +48,9 @@ class AppointmentForm
                     ->preload()
                     ->required()
                     ->live()
+                    ->default(fn() => auth()->user()?->role === Role::DOCTOR ? auth()->user()?->doctor?->id : null)
+                    ->disabled(fn() => auth()->user()?->role === Role::DOCTOR)
+                    ->dehydrated()
                     ->afterStateUpdated(fn(Set $set) => [
                         $set('service_id', null),
                         $set('schedule_id', null),

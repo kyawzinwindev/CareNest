@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\Specialization;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -14,14 +14,15 @@ class Service extends Model
         'description',
         'price',
         'required_prepayment',
-        'specialization_id'
+        'specialization'
     ];
 
-    protected function cast(): array
+    protected function casts(): array
     {
         return [
             'price' => 'decimal:2',
-            'required_prepayment' => 'bool'
+            'required_prepayment' => 'bool',
+            'specialization' => Specialization::class
         ];
     }
 
@@ -34,9 +35,5 @@ class Service extends Model
     {
         return $this->hasMany(Appointment::class);
     }
-
-    public function specialization(): BelongsTo
-    {
-        return $this->belongsTo(Specialization::class);
-    }
 }
+

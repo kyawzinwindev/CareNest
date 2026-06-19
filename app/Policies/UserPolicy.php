@@ -4,16 +4,27 @@ namespace App\Policies;
 
 use App\Enums\Role;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
+    /**
+     * Perform pre-authorization checks.
+     */
+    public function before(User $user, string $ability): ?bool
+    {
+        if ($user->role === Role::ROOT) {
+            return true;
+        }
+
+        return null;
+    }
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->role === Role::ADMIN;
     }
 
     /**
@@ -21,7 +32,7 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        return false;
+        return $user->role === Role::ADMIN || $model->id === $user->id;
     }
 
     /**
@@ -29,7 +40,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role != Role::PATIENT;
+        return $user->role === Role::ADMIN;
     }
 
     /**
@@ -37,9 +48,11 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        // dd($user->id);
-        return $model->role->value > $user->role->value
-        || $model->id === $user->id;
+        if ($user->role === Role::ADMIN) {
+            return $model->role !== Role::ROOT || $model->id === $user->id;
+        }
+
+        return $model->id === $user->id;
     }
 
     /**
@@ -47,8 +60,11 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return $model->role->value > $user->role->value
-        || $model->id === $user->id;
+        if ($user->role === Role::ADMIN) {
+            return $model->role !== Role::ROOT || $model->id === $user->id;
+        }
+
+        return $model->id === $user->id;
     }
 
     /**
@@ -56,8 +72,11 @@ class UserPolicy
      */
     public function restore(User $user, User $model): bool
     {
-        return $model->role->value > $user->role->value
-        || $model->id === $user->id;
+        if ($user->role === Role::ADMIN) {
+            return $model->role !== Role::ROOT || $model->id === $user->id;
+        }
+
+        return $model->id === $user->id;
     }
 
     /**
@@ -65,15 +84,23 @@ class UserPolicy
      */
     public function forceDelete(User $user, User $model): bool
     {
-        return $model->role->value > $user->role->value
-        || $model->id === $user->id;
+        if ($user->role === Role::ADMIN) {
+            return $model->role !== Role::ROOT || $model->id === $user->id;
+        }
+
+        return $model->id === $user->id;
     }
 
     /**
-     * Determine whether the user can assign the role to created user
+     * Determine whether the user can assign the role to created user.
      */
     public function assignRole(User $user, Role $role): bool
     {
-        return $user->role->value < $role->value;
+        if ($user->role === Role::ADMIN) {
+            return $role !== Role::ROOT;
+        }
+
+        return false;
     }
 }
+

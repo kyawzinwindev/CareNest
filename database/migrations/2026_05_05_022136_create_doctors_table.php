@@ -16,9 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')
                 ->constrained()
                 ->restrictOnDelete();
-            $table->foreignId('specialization_id')
-                ->constrained()
-                ->restrictOnDelete();;
+            $table->string('specialization');
             $table->timestamps();
         });
     }

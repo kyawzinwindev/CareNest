@@ -12,7 +12,9 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use App\Enums\Role;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Override;
 
 class ServiceResource extends Resource
@@ -42,6 +44,19 @@ class ServiceResource extends Resource
         return [
             //
         ];
+    }
+
+    #[Override]
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user && $user->role === Role::DOCTOR) {
+            $query->whereHas('doctors', fn($q) => $q->where('doctor_id', $user->doctor?->id));
+        }
+
+        return $query;
     }
 
     public static function getPages(): array

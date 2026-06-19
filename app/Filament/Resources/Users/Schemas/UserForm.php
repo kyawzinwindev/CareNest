@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Enums\Role;
+use App\Enums\Specialization;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -35,9 +36,9 @@ class UserForm
                 Group::make()
                     ->relationship('doctor')
                     ->schema([
-                        Select::make('specialization_id')
+                        Select::make('specialization')
                             ->label("Doctor Specialization")
-                            ->relationship('specialization', 'name')
+                            ->options(Specialization::class)
                             ->required()
                             ->live(),
 
@@ -47,14 +48,14 @@ class UserForm
                                 titleAttribute: 'name'
                             )
                             ->options(function (Get $get) {
-                                $specializationId = $get('specialization_id');
+                                $specialization = $get('specialization');
 
-                                if (!$specializationId) {
+                                if (!$specialization) {
                                     return [];
                                 }
 
                                 return \App\Models\Service::query()
-                                    ->where('specialization_id', $specializationId)
+                                    ->where('specialization', $specialization)
                                     ->pluck('name', 'id');
                             })
                             ->columns(2)

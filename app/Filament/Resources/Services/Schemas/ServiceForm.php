@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Services\Schemas;
 
+use App\Enums\Specialization;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -25,12 +26,11 @@ class ServiceForm
                 Toggle::make('required_prepayment')
                     ->label('Require Prepayment')
                     ->default(false),
-                Select::make('specialization_id')
-                    ->relationship('specialization', 'name')
-                    ->searchable()
-                    ->preload()
+                Select::make('specialization')
+                    ->options(Specialization::class)
                     ->required(),
             ])
             ->columns(1);
     }
 }
+

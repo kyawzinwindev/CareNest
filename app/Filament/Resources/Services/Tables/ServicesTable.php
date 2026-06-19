@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Services\Tables;
 
+use App\Enums\Specialization;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -36,14 +37,15 @@ class ServicesTable
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger'),
-                TextColumn::make("specialization.name")
+                TextColumn::make("specialization")
                     ->label("Specialization")
+                    ->formatStateUsing(fn($state) => $state?->label() ?? '')
                     ->searchable(),
                 TextColumn::make("created_at")->dateTime()
             ])
             ->filters([
                 SelectFilter::make('specialization')
-                    ->relationship('specialization', 'name')
+                    ->options(Specialization::class)
             ])
             ->recordActions([
                 EditAction::make(),

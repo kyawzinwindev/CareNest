@@ -3,10 +3,10 @@
 namespace App\Policies;
 
 use App\Enums\Role;
-use App\Models\Schedule;
+use App\Models\Appointment;
 use App\Models\User;
 
-class SchedulePolicy
+class AppointmentPolicy
 {
     /**
      * Perform pre-authorization checks.
@@ -31,14 +31,14 @@ class SchedulePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Schedule $schedule): bool
+    public function view(User $user, Appointment $appointment): bool
     {
         if ($user->role === Role::ADMIN) {
             return true;
         }
 
         if ($user->role === Role::DOCTOR) {
-            return $user->doctor && $user->doctor->id === $schedule->doctor_id;
+            return $user->doctor && $user->doctor->id === $appointment->doctor_id;
         }
 
         return false;
@@ -55,14 +55,14 @@ class SchedulePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Schedule $schedule): bool
+    public function update(User $user, Appointment $appointment): bool
     {
         if ($user->role === Role::ADMIN) {
             return true;
         }
 
         if ($user->role === Role::DOCTOR) {
-            return $user->doctor && $user->doctor->id === $schedule->doctor_id;
+            return $user->doctor && $user->doctor->id === $appointment->doctor_id;
         }
 
         return false;
@@ -71,14 +71,14 @@ class SchedulePolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Schedule $schedule): bool
+    public function delete(User $user, Appointment $appointment): bool
     {
         if ($user->role === Role::ADMIN) {
             return true;
         }
 
         if ($user->role === Role::DOCTOR) {
-            return $user->doctor && $user->doctor->id === $schedule->doctor_id;
+            return $user->doctor && $user->doctor->id === $appointment->doctor_id;
         }
 
         return false;
@@ -87,14 +87,14 @@ class SchedulePolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Schedule $schedule): bool
+    public function restore(User $user, Appointment $appointment): bool
     {
         if ($user->role === Role::ADMIN) {
             return true;
         }
 
         if ($user->role === Role::DOCTOR) {
-            return $user->doctor && $user->doctor->id === $schedule->doctor_id;
+            return $user->doctor && $user->doctor->id === $appointment->doctor_id;
         }
 
         return false;
@@ -103,17 +103,16 @@ class SchedulePolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Schedule $schedule): bool
+    public function forceDelete(User $user, Appointment $appointment): bool
     {
         if ($user->role === Role::ADMIN) {
             return true;
         }
 
         if ($user->role === Role::DOCTOR) {
-            return $user->doctor && $user->doctor->id === $schedule->doctor_id;
+            return $user->doctor && $user->doctor->id === $appointment->doctor_id;
         }
 
         return false;
     }
 }
-

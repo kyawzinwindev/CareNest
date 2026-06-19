@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Schedules;
 
+use App\Enums\Role;
 use App\Filament\Resources\Schedules\Pages\CreateSchedule;
 use App\Filament\Resources\Schedules\Pages\EditSchedule;
 use App\Filament\Resources\Schedules\Pages\ListSchedules;
@@ -15,6 +16,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Override;
 
 class ScheduleResource extends Resource
@@ -28,6 +30,19 @@ class ScheduleResource extends Resource
     {
         return 4;
     }
+
+    #[Override]
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (auth()->user()->role === Role::DOCTOR) {
+            $query->where('doctor_id', auth()->user()->doctor?->id);
+        }
+
+        return $query;
+    }
+
 
 
     public static function form(Schema $schema): Schema

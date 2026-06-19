@@ -17,9 +17,7 @@ return new class extends Migration
             $table->text('description');
             $table->decimal('price', 8, 2);
             $table->boolean('required_prepayment');
-            $table->foreignId('specialization_id')
-                ->constrained()
-                ->restrictOnDelete();;
+            $table->string('specialization');
             $table->timestamps();
         });
     }
