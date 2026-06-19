@@ -4,10 +4,10 @@ namespace App\Filament\Resources\Appointments\Tables;
 
 use App\Enums\AppointmentStatus;
 use App\Enums\TimeSlotStatus;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -33,13 +33,8 @@ class AppointmentsTable
                 TextColumn::make('payment_type')
                     ->label("Payment Type")
                     ->badge(),
-                TextColumn::make('status')
-                    ->badge()
-                    ->colors([
-                        'warning' => AppointmentStatus::PENDING->value,
-                        'success' => AppointmentStatus::CONFIRMED->value,
-                        'danger' => AppointmentStatus::CANCELLED->value,
-                    ]),
+                SelectColumn::make('status')
+                    ->options(AppointmentStatus::options()),
             ])
             ->filters([
                 SelectFilter::make("doctor")
@@ -66,14 +61,8 @@ class AppointmentsTable
                     ->searchable()
                     ->preload(),
             ])
-            ->recordActions([
-                // EditAction::make(),
-                DeleteAction::make()
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+            ->actions([
+                //
             ]);
     }
 }

@@ -61,7 +61,7 @@ class PaymentResource extends Resource
     #[Override]
     public static function canEdit(Model $record): bool
     {
-        return false;
+        return auth()->user()?->role === \App\Enums\Role::ROOT || auth()->user()?->role === \App\Enums\Role::ADMIN;
     }
 
     #[Override]
@@ -74,7 +74,7 @@ class PaymentResource extends Resource
     {
         return [
             'index' => ListPayments::route('/'),
-            'view' => ViewPayment::route('/{record}'),
+            'edit' => EditPayment::route('/{record}/edit'),
         ];
     }
 }

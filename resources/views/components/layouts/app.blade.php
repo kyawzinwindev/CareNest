@@ -36,31 +36,71 @@
                 <!-- Navigation Links -->
                 <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
                     <a href="{{ url('/') }}" class="text-slate-300 hover:text-white transition-colors">Home</a>
+                    <a href="{{ url('/') }}#about" class="text-slate-300 hover:text-white transition-colors">CareNest</a>
                     <a href="{{ url('/') }}#specialties" class="text-slate-300 hover:text-white transition-colors">Specialties</a>
-                    <a href="{{ url('/') }}#features" class="text-slate-300 hover:text-white transition-colors">Features</a>
-                    @auth
-                        @if(auth()->user()->role === App\Enums\Role::PATIENT)
-                            <a href="{{ route('appointments') }}" class="text-slate-300 hover:text-white transition-colors">My Appointments</a>
-                        @endif
-                    @endauth
                 </nav>
 
                 <!-- Actions -->
                 <div class="flex items-center gap-4">
                     @auth
-                        <div class="flex items-center gap-4">
-                            <span class="text-sm text-slate-400 hidden sm:inline">Hello, <strong class="text-slate-200">{{ auth()->user()->name }}</strong></span>
-                            @if(auth()->user()->role !== App\Enums\Role::PATIENT)
-                                <a href="{{ url('/admin') }}" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors">
-                                    Dashboard
+                        <!-- Alpine.js User Dropdown -->
+                        <div x-data="{ open: false }" class="relative">
+                            <button @click="open = !open" @click.away="open = false" class="flex items-center gap-2 p-1.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-800/80 hover:border-slate-700 transition-all focus:outline-none">
+                                <!-- Profile Icon -->
+                                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-400 to-violet-600 flex items-center justify-center text-slate-900 font-extrabold text-sm">
+                                    {{ substr(auth()->user()->name, 0, 1) }}
+                                </div>
+                                <span class="text-xs font-semibold text-slate-300 mr-1 hidden sm:inline">{{ auth()->user()->name }}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-slate-400 mr-1">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
+                            </button>
+
+                            <!-- Dropdown menu -->
+                            <div x-show="open" 
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
+                                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                 x-transition:leave="transition ease-in duration-75"
+                                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                                 x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
+                                 class="absolute right-0 mt-2 w-52 rounded-2xl bg-slate-900/95 backdrop-blur-md border border-slate-800/80 shadow-2xl p-2 z-50"
+                                 style="display: none;">
+                                <div class="px-3 py-2 border-b border-slate-800/60 mb-1">
+                                    <p class="text-[10px] text-slate-500 uppercase tracking-wider">Logged in as</p>
+                                    <p class="text-xs font-bold text-white truncate">{{ auth()->user()->email }}</p>
+                                </div>
+                                <a href="{{ route('profile') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-cyan-400">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                    </svg>
+                                    My Profile & Security
                                 </a>
-                            @endif
-                            <form method="POST" action="{{ route('logout') }}" class="inline">
-                                @csrf
-                                <button type="submit" class="text-sm text-slate-400 hover:text-rose-400 transition-colors font-medium">
-                                    Log out
-                                </button>
-                            </form>
+                                @if(auth()->user()->role === App\Enums\Role::PATIENT)
+                                    <a href="{{ route('appointments') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-violet-400">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                                        </svg>
+                                        My Appointments
+                                    </a>
+                                @else
+                                    <a href="{{ url('/admin') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-amber-400">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+                                        </svg>
+                                        Filament Dashboard
+                                    </a>
+                                @endif
+                                <form method="POST" action="{{ route('logout') }}" class="block w-full">
+                                    @csrf
+                                    <button type="submit" class="flex w-full items-center gap-2 px-3 py-2.5 rounded-xl text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors text-left font-medium">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                                        </svg>
+                                        Logout
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     @else
                         <a href="{{ route('login') }}" class="text-sm text-slate-300 hover:text-white transition-colors font-medium">Log in</a>

@@ -43,12 +43,12 @@
     </section>
 
     <!-- Bento Grid / Asymmetric Layout (Zip-Zap Blocks) -->
-    <section id="features" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 scroll-mt-24">
+    <section id="about" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 scroll-mt-24">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Block A: Quick Stats (Double width on md/lg) -->
             <div class="md:col-span-2 rounded-3xl p-8 bg-slate-900/40 backdrop-blur-md border border-slate-800/80 shadow-2xl flex flex-col justify-between hover:border-cyan-500/30 transition-all duration-300 group">
                 <div class="mb-8">
-                    <span class="text-xs font-semibold tracking-wider text-cyan-400 uppercase">CareNest Metrics</span>
+                    <span class="text-xs font-semibold tracking-wider text-cyan-400 uppercase">About CareNest</span>
                     <h3 class="text-3xl font-bold text-white mt-2 font-['Outfit']">Our Numbers Speak Voluminous Care</h3>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">

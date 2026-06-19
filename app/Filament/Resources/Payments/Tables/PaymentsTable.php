@@ -12,6 +12,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -36,18 +37,15 @@ class PaymentsTable
                     ->badge(),
 
                 ImageColumn::make('screenshot')
-                    ->label('Receipt'),
+                    ->label('Receipt')
+                    ->disk('public')
+                    ->url(fn($record) => $record->screenshot ? '/storage/' . $record->screenshot : null, shouldOpenInNewTab: true),
 
                 TextColumn::make('paid_at')
                     ->dateTime(),
 
-                TextColumn::make('status')
-                    ->badge()
-                    ->colors([
-                        'warning' => PaymentStatus::PENDING->value,
-                        'success' => PaymentStatus::PAID->value,
-                        'danger' => PaymentStatus::FAILED->value,
-                    ]),
+                SelectColumn::make('status')
+                    ->options(PaymentStatus::options()),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -55,34 +53,8 @@ class PaymentsTable
                 SelectFilter::make('method')
                     ->options(PaymentMethod::options()),
             ])
-            ->recordActions([
-                Action::make('accept')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->visible(fn($record) => $record->status === PaymentStatus::PENDING->value)
-                    ->action(function ($record) {
-                        $record->update([
-                            'status' => PaymentStatus::PAID,
-                        ]);
-
-                        $record->appointment->update([
-                            'status' => AppointmentStatus::CONFIRMED,
-                        ]);
-                    }),
-
-                Action::make('reject')
-                    ->icon('heroicon-o-x-circle')
-                    ->color('danger')
-                    ->requiresConfirmation()
-                    ->visible(fn($record) => $record->status === PaymentStatus::PENDING->value)
-                    ->action(function ($record) {
-                        $record->update([
-                            'status' => PaymentStatus::FAILED,
-                        ]);
-                    }),
-
-                ViewAction::make(),
+            ->actions([
+                //
             ]);
     }
 }

@@ -22,6 +22,10 @@ class Login extends Component
         if (Auth::attempt(['email' => $this->email, 'password' => $this->password])) {
             session()->regenerate();
             
+            if (Auth::user()->role !== \App\Enums\Role::PATIENT) {
+                return $this->redirect('/admin');
+            }
+            
             // Redirect to home or booking
             return $this->redirectIntended('/');
         }

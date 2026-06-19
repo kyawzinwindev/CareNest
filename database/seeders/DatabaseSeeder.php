@@ -17,287 +17,283 @@ use App\Enums\AppointmentStatus;
 use App\Enums\PaymentType;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentMethod;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
         // 1. Root User
-        User::factory()->create([
+        User::create([
             'name' => 'Root User',
             'email' => 'root@carenest.com',
+            'password' => Hash::make('password'),
             'role' => Role::ROOT,
         ]);
 
         // 2. Admin User
-        User::factory()->create([
+        User::create([
             'name' => 'Admin User',
             'email' => 'admin@carenest.com',
+            'password' => Hash::make('password'),
             'role' => Role::ADMIN,
         ]);
 
-        // 3. Create Services
-        $serviceGP = Service::create([
-            'name' => 'General Health Checkup',
-            'description' => 'Standard physical examination, checking vital signs, and general health review.',
-            'price' => 50.00,
-            'required_prepayment' => false,
-            'specialization' => Specialization::GENERAL_MEDICINE,
-        ]);
+        // 3. Create Services (10 Services distributed across various specializations)
+        $servicesData = [
+            [
+                'name' => 'General Consultation',
+                'description' => 'Routine general medical checkup, history taking, and prescription guidance.',
+                'price' => 40.00,
+                'required_prepayment' => false,
+                'specialization' => Specialization::GENERAL_MEDICINE,
+            ],
+            [
+                'name' => 'Comprehensive Annual Checkup',
+                'description' => 'Thorough medical assessment, vital signs screening, and blood report analysis.',
+                'price' => 120.00,
+                'required_prepayment' => true,
+                'specialization' => Specialization::GENERAL_MEDICINE,
+            ],
+            [
+                'name' => 'Electrocardiogram (ECG) Evaluation',
+                'description' => 'Advanced heart activity monitoring and specialized cardiological feedback.',
+                'price' => 150.00,
+                'required_prepayment' => true,
+                'specialization' => Specialization::CARDIOLOGY,
+            ],
+            [
+                'name' => 'Pediatric Well-Child Exam',
+                'description' => 'Physical growth assessment, milestones tracking, and general health review for children.',
+                'price' => 75.00,
+                'required_prepayment' => false,
+                'specialization' => Specialization::PEDIATRICS,
+            ],
+            [
+                'name' => 'Acne & Skin Lesion Consultation',
+                'description' => 'Specialized dermatology consultation focusing on skincare, acne treatment, and diagnostic patches.',
+                'price' => 90.00,
+                'required_prepayment' => false,
+                'specialization' => Specialization::DERMATOLOGY,
+            ],
+            [
+                'name' => 'Neurological Reflex & EEG Review',
+                'description' => 'Comprehensive assessment of neurological systems, sensory testing, and electroencephalogram readings.',
+                'price' => 250.00,
+                'required_prepayment' => true,
+                'specialization' => Specialization::NEUROLOGY,
+            ],
+            [
+                'name' => 'Joint Pain & Orthopedic Exam',
+                'description' => 'Evaluation of muscle pain, bone fractures, joints alignment, and physical mobility tests.',
+                'price' => 110.00,
+                'required_prepayment' => false,
+                'specialization' => Specialization::ORTHOPEDICS,
+            ],
+            [
+                'name' => 'Routine Eye & Vision Test',
+                'description' => 'Ophthalmological screening including visual acuity tests and eyeglasses check.',
+                'price' => 60.00,
+                'required_prepayment' => false,
+                'specialization' => Specialization::OPHTHALMOLOGY,
+            ],
+            [
+                'name' => 'Prenatal Wellness Consultation',
+                'description' => 'Clinical gynecological checkup monitoring pregnancy progression, ultrasound readings, and fetal vitals.',
+                'price' => 130.00,
+                'required_prepayment' => true,
+                'specialization' => Specialization::GYNECOLOGY,
+            ],
+            [
+                'name' => 'Pediatric Vaccination Consultation',
+                'description' => 'Consultation mapping child immunizations and minor health follow-ups.',
+                'price' => 50.00,
+                'required_prepayment' => false,
+                'specialization' => Specialization::PEDIATRICS,
+            ],
+        ];
 
-        $serviceCardio = Service::create([
-            'name' => 'Comprehensive Cardiology Exam',
-            'description' => 'ECG test, blood pressure monitoring, and specialized heart health evaluation.',
-            'price' => 180.00,
-            'required_prepayment' => true,
-            'specialization' => Specialization::CARDIOLOGY,
-        ]);
+        $services = [];
+        foreach ($servicesData as $data) {
+            $services[] = Service::create($data);
+        }
 
-        $servicePediatric = Service::create([
-            'name' => 'Pediatric Routine Consultation',
-            'description' => 'Child development assessment, vaccination review, and general consultation.',
-            'price' => 75.00,
-            'required_prepayment' => false,
-            'specialization' => Specialization::PEDIATRICS,
-        ]);
+        // 4. Create 10 Doctors and Link to matching Services
+        $doctorsData = [
+            ['name' => 'Dr. Jane Smith', 'email' => 'doctor.smith@carenest.com', 'spec' => Specialization::CARDIOLOGY],
+            ['name' => 'Dr. John Doe', 'email' => 'doctor.doe@carenest.com', 'spec' => Specialization::PEDIATRICS],
+            ['name' => 'Dr. Alice Johnson', 'email' => 'doctor.johnson@carenest.com', 'spec' => Specialization::DERMATOLOGY],
+            ['name' => 'Dr. Sarah Brown', 'email' => 'doctor.brown@carenest.com', 'spec' => Specialization::GENERAL_MEDICINE],
+            ['name' => 'Dr. Robert Davis', 'email' => 'doctor.davis@carenest.com', 'spec' => Specialization::NEUROLOGY],
+            ['name' => 'Dr. Emily Wilson', 'email' => 'doctor.wilson@carenest.com', 'spec' => Specialization::ORTHOPEDICS],
+            ['name' => 'Dr. Michael Taylor', 'email' => 'doctor.taylor@carenest.com', 'spec' => Specialization::GYNECOLOGY],
+            ['name' => 'Dr. William Thomas', 'email' => 'doctor.thomas@carenest.com', 'spec' => Specialization::OPHTHALMOLOGY],
+            ['name' => 'Dr. Jessica White', 'email' => 'doctor.white@carenest.com', 'spec' => Specialization::GENERAL_MEDICINE],
+            ['name' => 'Dr. David Martin', 'email' => 'doctor.martin@carenest.com', 'spec' => Specialization::PEDIATRICS],
+        ];
 
-        $serviceDerma = Service::create([
-            'name' => 'Skin Allergy Patch Test',
-            'description' => 'Specialized test to diagnose skin allergies and inflammatory triggers.',
-            'price' => 110.00,
-            'required_prepayment' => false,
-            'specialization' => Specialization::DERMATOLOGY,
-        ]);
+        $doctors = [];
+        foreach ($doctorsData as $index => $doc) {
+            $user = User::create([
+                'name' => $doc['name'],
+                'email' => $doc['email'],
+                'password' => Hash::make('password'),
+                'role' => Role::DOCTOR,
+            ]);
 
-        $serviceNeuro = Service::create([
-            'name' => 'Neurological Focus Evaluation',
-            'description' => 'Testing reflexes, sensory responses, cognitive checks, and nerve function review.',
-            'price' => 160.00,
-            'required_prepayment' => true,
-            'specialization' => Specialization::NEUROLOGY,
-        ]);
+            $doctor = $user->doctor()->create([
+                'specialization' => $doc['spec'],
+            ]);
 
-        // 4. Create Doctors and link them to Services
-        $doctorSmithUser = User::factory()->create([
-            'name' => 'Dr. Jane Smith',
-            'email' => 'doctor.smith@carenest.com',
-            'role' => Role::DOCTOR,
-        ]);
-        $doctorSmith = $doctorSmithUser->doctor()->create([
-            'specialization' => Specialization::CARDIOLOGY,
-        ]);
-        $doctorSmith->services()->attach($serviceCardio);
+            // Link services with doctor's specialization
+            $matchedServices = collect($services)->filter(fn($s) => $s->specialization === $doc['spec']);
+            foreach ($matchedServices as $service) {
+                $doctor->services()->attach($service);
+            }
 
-        $doctorDoeUser = User::factory()->create([
-            'name' => 'Dr. John Doe',
-            'email' => 'doctor.doe@carenest.com',
-            'role' => Role::DOCTOR,
-        ]);
-        $doctorDoe = $doctorDoeUser->doctor()->create([
-            'specialization' => Specialization::PEDIATRICS,
-        ]);
-        $doctorDoe->services()->attach($servicePediatric);
+            $doctors[] = $doctor;
+        }
 
-        $doctorJohnsonUser = User::factory()->create([
-            'name' => 'Dr. Alice Johnson',
-            'email' => 'doctor.johnson@carenest.com',
-            'role' => Role::DOCTOR,
-        ]);
-        $doctorJohnson = $doctorJohnsonUser->doctor()->create([
-            'specialization' => Specialization::DERMATOLOGY,
-        ]);
-        $doctorJohnson->services()->attach($serviceDerma);
+        // 5. Create 12 Patients
+        $patientsData = [
+            ['name' => 'Mark Wilson', 'email' => 'patient.wilson@carenest.com', 'w' => 78.5, 'h' => 182.0, 'dob' => '1991-04-10'],
+            ['name' => 'Emily Davis', 'email' => 'patient.davis@carenest.com', 'w' => 58.0, 'h' => 164.0, 'dob' => '1994-08-15'],
+            ['name' => 'Michael Miller', 'email' => 'patient.miller@carenest.com', 'w' => 82.5, 'h' => 178.5, 'dob' => '1987-12-05'],
+            ['name' => 'Sarah Jenkins', 'email' => 'patient.jenkins@carenest.com', 'w' => 64.0, 'h' => 170.0, 'dob' => '1995-10-22'],
+            ['name' => 'David Clark', 'email' => 'patient.clark@carenest.com', 'w' => 91.2, 'h' => 185.0, 'dob' => '1989-02-14'],
+            ['name' => 'Jessica Lewis', 'email' => 'patient.lewis@carenest.com', 'w' => 54.5, 'h' => 160.0, 'dob' => '1993-11-30'],
+            ['name' => 'Daniel Hall', 'email' => 'patient.hall@carenest.com', 'w' => 88.0, 'h' => 180.0, 'dob' => '1985-05-18'],
+            ['name' => 'Taylor Allen', 'email' => 'patient.allen@carenest.com', 'w' => 70.0, 'h' => 174.0, 'dob' => '1992-07-09'],
+            ['name' => 'Ashley Young', 'email' => 'patient.young@carenest.com', 'w' => 61.5, 'h' => 167.5, 'dob' => '1996-03-27'],
+            ['name' => 'James King', 'email' => 'patient.king@carenest.com', 'w' => 76.8, 'h' => 176.0, 'dob' => '1990-09-03'],
+            ['name' => 'Linda Wright', 'email' => 'patient.wright@carenest.com', 'w' => 55.0, 'h' => 162.0, 'dob' => '1988-12-12'],
+            ['name' => 'Patricia Hill', 'email' => 'patient.hill@carenest.com', 'w' => 68.2, 'h' => 169.0, 'dob' => '1991-01-25'],
+        ];
 
-        $doctorBrownUser = User::factory()->create([
-            'name' => 'Dr. Sarah Brown',
-            'email' => 'doctor.brown@carenest.com',
-            'role' => Role::DOCTOR,
-        ]);
-        $doctorBrown = $doctorBrownUser->doctor()->create([
-            'specialization' => Specialization::GENERAL_MEDICINE,
-        ]);
-        $doctorBrown->services()->attach($serviceGP);
+        $patients = [];
+        foreach ($patientsData as $pat) {
+            $user = User::create([
+                'name' => $pat['name'],
+                'email' => $pat['email'],
+                'password' => Hash::make('password'),
+                'role' => Role::PATIENT,
+            ]);
 
-        // 5. Create Patients
-        $patientWilsonUser = User::factory()->create([
-            'name' => 'Mark Wilson',
-            'email' => 'patient.wilson@carenest.com',
-            'role' => Role::PATIENT,
-        ]);
-        $patientWilson = $patientWilsonUser->patient()->create([
-            'weight' => 78.50,
-            'height' => 182.00,
-            'dob' => '1991-04-10',
-        ]);
+            $patients[] = $user->patient()->create([
+                'weight' => $pat['w'],
+                'height' => $pat['h'],
+                'dob' => $pat['dob'],
+            ]);
+        }
 
-        $patientDavisUser = User::factory()->create([
-            'name' => 'Emily Davis',
-            'email' => 'patient.davis@carenest.com',
-            'role' => Role::PATIENT,
-        ]);
-        $patientDavis = $patientDavisUser->patient()->create([
-            'weight' => 58.00,
-            'height' => 164.00,
-            'dob' => '1994-08-15',
-        ]);
-
-        $patientMillerUser = User::factory()->create([
-            'name' => 'Michael Miller',
-            'email' => 'patient.miller@carenest.com',
-            'role' => Role::PATIENT,
-        ]);
-        $patientMiller = $patientMillerUser->patient()->create([
-            'weight' => 82.50,
-            'height' => 178.50,
-            'dob' => '1987-12-05',
-        ]);
-
-        // 6. Create Schedules (Generates Time Slots automatically)
-        $scheduleCardio = Schedule::create([
-            'doctor_id' => $doctorSmith->id,
-            'date' => now()->format('Y-m-d'),
-            'start_time' => '09:00:00',
-            'end_time' => '12:00:00',
-            'slot_duration_minutes' => 30,
-        ]);
-
-        $schedulePediatric = Schedule::create([
-            'doctor_id' => $doctorDoe->id,
-            'date' => now()->addDay()->format('Y-m-d'),
-            'start_time' => '13:00:00',
-            'end_time' => '16:00:00',
-            'slot_duration_minutes' => 30,
-        ]);
-
-        $scheduleDerma = Schedule::create([
-            'doctor_id' => $doctorJohnson->id,
-            'date' => now()->format('Y-m-d'),
-            'start_time' => '10:00:00',
-            'end_time' => '13:00:00',
-            'slot_duration_minutes' => 30,
-        ]);
-
-        $scheduleGP = Schedule::create([
-            'doctor_id' => $doctorBrown->id,
-            'date' => now()->addDay()->format('Y-m-d'),
-            'start_time' => '09:00:00',
-            'end_time' => '12:00:00',
-            'slot_duration_minutes' => 30,
-        ]);
-
-        // 7. Create Appointments and mark Time Slots booked
-        
-        // Appointment 1: Mark Wilson books with Dr. Sarah Brown (GP)
-        $slotGP = $scheduleGP->time_slots()->first();
-        if ($slotGP) {
-            $slotGP->update(['status' => TimeSlotStatus::BOOKED]);
+        // 6. Create 15 Schedules (Time slots generated automatically)
+        $schedulesData = [
+            // Today Schedules
+            ['doc' => 0, 'date' => now()->format('Y-m-d'), 'start' => '09:00:00', 'end' => '12:00:00'], // Smith (Cardiology)
+            ['doc' => 1, 'date' => now()->format('Y-m-d'), 'start' => '13:00:00', 'end' => '16:00:00'], // Doe (Pediatrics)
+            ['doc' => 2, 'date' => now()->format('Y-m-d'), 'start' => '10:00:00', 'end' => '13:00:00'], // Johnson (Dermatology)
+            ['doc' => 3, 'date' => now()->format('Y-m-d'), 'start' => '09:00:00', 'end' => '12:00:00'], // Brown (Gen Med)
+            ['doc' => 4, 'date' => now()->format('Y-m-d'), 'start' => '14:00:00', 'end' => '17:00:00'], // Davis (Neurology)
             
-            Appointment::create([
-                'patient_id' => $patientWilson->id,
-                'doctor_id' => $doctorBrown->id,
-                'service_id' => $serviceGP->id,
-                'time_slot_id' => $slotGP->id,
-                'payment_type' => PaymentType::ONSITE,
-                'status' => AppointmentStatus::CONFIRMED,
+            // Tomorrow Schedules
+            ['doc' => 1, 'date' => now()->addDay()->format('Y-m-d'), 'start' => '09:00:00', 'end' => '12:00:00'], // Doe
+            ['doc' => 5, 'date' => now()->addDay()->format('Y-m-d'), 'start' => '09:00:00', 'end' => '12:00:00'], // Wilson (Orthopedics)
+            ['doc' => 6, 'date' => now()->addDay()->format('Y-m-d'), 'start' => '10:00:00', 'end' => '13:00:00'], // Taylor (Gynecology)
+            ['doc' => 7, 'date' => now()->addDay()->format('Y-m-d'), 'start' => '14:00:00', 'end' => '17:00:00'], // Thomas (Ophthalmology)
+            ['doc' => 8, 'date' => now()->addDay()->format('Y-m-d'), 'start' => '09:00:00', 'end' => '12:00:00'], // White (Gen Med)
+            
+            // Day After Tomorrow Schedules
+            ['doc' => 0, 'date' => now()->addDays(2)->format('Y-m-d'), 'start' => '09:00:00', 'end' => '12:00:00'], // Smith
+            ['doc' => 2, 'date' => now()->addDays(2)->format('Y-m-d'), 'start' => '13:00:00', 'end' => '16:00:00'], // Johnson
+            ['doc' => 9, 'date' => now()->addDays(2)->format('Y-m-d'), 'start' => '10:00:00', 'end' => '13:00:00'], // Martin (Pediatrics)
+            ['doc' => 3, 'date' => now()->addDays(2)->format('Y-m-d'), 'start' => '09:00:00', 'end' => '12:00:00'], // Brown
+            ['doc' => 4, 'date' => now()->addDays(2)->format('Y-m-d'), 'start' => '14:00:00', 'end' => '17:00:00'], // Davis
+        ];
+
+        $schedules = [];
+        foreach ($schedulesData as $sch) {
+            $schedules[] = Schedule::create([
+                'doctor_id' => $doctors[$sch['doc']]->id,
+                'date' => $sch['date'],
+                'start_time' => $sch['start'],
+                'end_time' => $sch['end'],
+                'slot_duration_minutes' => 30,
             ]);
         }
 
-        // Appointment 2: Emily Davis books with Dr. Jane Smith (Cardio)
-        $slotCardio = $scheduleCardio->time_slots()->first();
-        if ($slotCardio) {
-            $slotCardio->update(['status' => TimeSlotStatus::BOOKED]);
-
-            $appointmentCardio = Appointment::create([
-                'patient_id' => $patientDavis->id,
-                'doctor_id' => $doctorSmith->id,
-                'service_id' => $serviceCardio->id,
-                'time_slot_id' => $slotCardio->id,
-                'payment_type' => PaymentType::ONLINE,
-                'status' => AppointmentStatus::CONFIRMED,
-            ]);
-
-            Payment::create([
-                'amount' => 180.00,
-                'method' => PaymentMethod::CARD,
-                'status' => PaymentStatus::PAID,
-                'appointment_id' => $appointmentCardio->id,
-                'paid_at' => '08:45:00',
-            ]);
+        // We mark some random slots as UNAVAILABLE to simulate real clinical schedules
+        foreach ($schedules as $s) {
+            $randomSlot = $s->time_slots()->skip(2)->first();
+            if ($randomSlot) {
+                $randomSlot->update(['status' => TimeSlotStatus::UNAVAILABLE]);
+            }
         }
 
-        // Appointment 3: Michael Miller books with Dr. Alice Johnson (Derma)
-        $slotDerma = $scheduleDerma->time_slots()->first();
-        if ($slotDerma) {
-            $slotDerma->update(['status' => TimeSlotStatus::BOOKED]);
+        // 7. Create at least 12 Appointments & 10 Payment records
+        // Appointment mapping structure: [patient_index, doctor_index, service_index, schedule_index, slot_offset, type, status, payment_method, payment_status, screenshot]
+        $appointmentsMapping = [
+            // 1. Onsite confirmed (no payment record)
+            [0, 3, 0, 3, 0, PaymentType::ONSITE, AppointmentStatus::CONFIRMED, null, null, null], 
+            // 2. Online paid
+            [1, 0, 2, 0, 0, PaymentType::ONLINE, AppointmentStatus::CONFIRMED, PaymentMethod::CARD, PaymentStatus::PAID, null],
+            // 3. Online pending QR
+            [2, 2, 4, 2, 0, PaymentType::ONLINE, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING, 'payments/mock_qr_1.png'],
+            // 4. Online failed card (cancelled)
+            [3, 1, 3, 1, 0, PaymentType::ONLINE, AppointmentStatus::CANCELLED, PaymentMethod::CARD, PaymentStatus::FAILED, null],
+            // 5. Online pending QR
+            [4, 4, 5, 4, 0, PaymentType::ONLINE, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING, 'payments/mock_qr_2.png'],
+            // 6. Online paid card
+            [5, 5, 6, 6, 1, PaymentType::ONLINE, AppointmentStatus::CONFIRMED, PaymentMethod::CARD, PaymentStatus::PAID, 'payments/mock_card_1.png'],
+            // 7. Online pending QR
+            [6, 6, 8, 7, 0, PaymentType::ONLINE, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING, 'payments/mock_qr_3.png'],
+            // 8. Onsite pending
+            [7, 7, 7, 8, 1, PaymentType::ONSITE, AppointmentStatus::PENDING, null, null, null],
+            // 9. Online paid card
+            [8, 8, 1, 9, 0, PaymentType::ONLINE, AppointmentStatus::CONFIRMED, PaymentMethod::CARD, PaymentStatus::PAID, 'payments/mock_card_2.png'],
+            // 10. Online pending QR
+            [9, 9, 9, 12, 0, PaymentType::ONLINE, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING, 'payments/mock_qr_4.png'],
+            // 11. Online paid card
+            [10, 0, 2, 10, 1, PaymentType::ONLINE, AppointmentStatus::CONFIRMED, PaymentMethod::CARD, PaymentStatus::PAID, null],
+            // 12. Online pending QR
+            [11, 2, 4, 11, 1, PaymentType::ONLINE, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING, 'payments/mock_qr_5.png'],
+        ];
 
-            $appointmentDerma = Appointment::create([
-                'patient_id' => $patientMiller->id,
-                'doctor_id' => $doctorJohnson->id,
-                'service_id' => $serviceDerma->id,
-                'time_slot_id' => $slotDerma->id,
-                'payment_type' => PaymentType::ONLINE,
-                'status' => AppointmentStatus::PENDING,
-            ]);
+        foreach ($appointmentsMapping as $map) {
+            $patient = $patients[$map[0]];
+            $doctor = $doctors[$map[1]];
+            $service = $services[$map[2]];
+            $schedule = $schedules[$map[3]];
+            $slot = $schedule->time_slots()->skip($map[4])->first();
 
-            Payment::create([
-                'amount' => 110.00,
-                'method' => PaymentMethod::QR,
-                'status' => PaymentStatus::PENDING,
-                'appointment_id' => $appointmentDerma->id,
-                'paid_at' => '09:15:00',
-            ]);
-        }
+            if ($slot) {
+                $slot->update(['status' => TimeSlotStatus::BOOKED]);
 
-        // Appointment 4: Emily Davis books with Dr. John Doe (Pediatrician)
-        $slotPediatric = $schedulePediatric->time_slots()->first();
-        if ($slotPediatric) {
-            $slotPediatric->update(['status' => TimeSlotStatus::BOOKED]);
+                $appointment = Appointment::create([
+                    'patient_id' => $patient->id,
+                    'doctor_id' => $doctor->id,
+                    'service_id' => $service->id,
+                    'time_slot_id' => $slot->id,
+                    'payment_type' => $map[5],
+                    'status' => $map[6],
+                ]);
 
-            Appointment::create([
-                'patient_id' => $patientDavis->id,
-                'doctor_id' => $doctorDoe->id,
-                'service_id' => $servicePediatric->id,
-                'time_slot_id' => $slotPediatric->id,
-                'payment_type' => PaymentType::ONSITE,
-                'status' => AppointmentStatus::PENDING,
-            ]);
-        }
-
-        // Appointment 5: Michael Miller books with Dr. Jane Smith (Cardiologist) - 2nd slot
-        $slotCardio2 = $scheduleCardio->time_slots()->skip(1)->first();
-        if ($slotCardio2) {
-            $slotCardio2->update(['status' => TimeSlotStatus::BOOKED]);
-
-            Appointment::create([
-                'patient_id' => $patientMiller->id,
-                'doctor_id' => $doctorSmith->id,
-                'service_id' => $serviceCardio->id,
-                'time_slot_id' => $slotCardio2->id,
-                'payment_type' => PaymentType::ONLINE,
-                'status' => AppointmentStatus::PENDING,
-            ]);
-        }
-
-        // Appointment 6: Mark Wilson books with Dr. Alice Johnson (Dermatologist) - 2nd slot
-        $slotDerma2 = $scheduleDerma->time_slots()->skip(1)->first();
-        if ($slotDerma2) {
-            $slotDerma2->update(['status' => TimeSlotStatus::BOOKED]);
-
-            Appointment::create([
-                'patient_id' => $patientWilson->id,
-                'doctor_id' => $doctorJohnson->id,
-                'service_id' => $serviceDerma->id,
-                'time_slot_id' => $slotDerma2->id,
-                'payment_type' => PaymentType::ONSITE,
-                'status' => AppointmentStatus::CONFIRMED,
-            ]);
+                // Create payment if payment method is provided
+                if ($map[7] !== null) {
+                    Payment::create([
+                        'amount' => $service->price,
+                        'method' => $map[7],
+                        'status' => $map[8],
+                        'screenshot' => $map[9],
+                        'appointment_id' => $appointment->id,
+                        'paid_at' => Carbon::now()->subMinutes(15)->format('H:i:s'),
+                    ]);
+                }
+            }
         }
     }
 }

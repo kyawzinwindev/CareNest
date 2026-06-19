@@ -35,6 +35,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Appointment::class, AppointmentPolicy::class);
         Gate::policy(Payment::class, PaymentPolicy::class);
         Gate::policy(Service::class, ServicePolicy::class);
+
+        Payment::observe(\App\Observers\PaymentObserver::class);
+        Appointment::observe(\App\Observers\AppointmentObserver::class);
     }
 }
 

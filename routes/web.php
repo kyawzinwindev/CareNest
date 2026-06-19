@@ -4,11 +4,17 @@ use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Register;
 use App\Livewire\BookingWizard\BookingWizard;
 use App\Livewire\PatientAppointments;
+use App\Livewire\UserProfile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('home');
+Route::middleware(['patient.only'])->group(function () {
+    Route::get('/', function () {
+        return view('home');
+    });
+    Route::get('/booking', BookingWizard::class)->name('booking');
+    Route::get('/appointments', PatientAppointments::class)->name('appointments')->middleware('auth');
+    Route::get('/profile', UserProfile::class)->name('profile')->middleware('auth');
 });
 
 Route::get('/login', Login::class)->name('login')->middleware('guest');
@@ -20,6 +26,3 @@ Route::post('/logout', function () {
     request()->session()->regenerateToken();
     return redirect('/');
 })->name('logout')->middleware('auth');
-
-Route::get('/booking', BookingWizard::class)->name('booking');
-Route::get('/appointments', PatientAppointments::class)->name('appointments')->middleware('auth');

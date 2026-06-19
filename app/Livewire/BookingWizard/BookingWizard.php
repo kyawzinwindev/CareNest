@@ -65,6 +65,10 @@ class BookingWizard extends Component
 
     public function mount()
     {
+        if (Auth::check() && Auth::user()->role !== Role::PATIENT) {
+            return $this->redirect('/admin');
+        }
+
         // Pre-fill specialization if passed in URL query
         if ($this->specialization) {
             $valid = collect(Specialization::cases())->map(fn($c) => $c->value)->contains($this->specialization);
@@ -254,6 +258,10 @@ class BookingWizard extends Component
                 }
 
                 session()->regenerate();
+
+                if (Auth::user()->role !== Role::PATIENT) {
+                    return $this->redirect('/admin');
+                }
 
                 // Load patient info if patient exists
                 $patient = Auth::user()->patient;

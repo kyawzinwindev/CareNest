@@ -13,6 +13,10 @@ class AppointmentPolicy
      */
     public function before(User $user, string $ability): ?bool
     {
+        if ($ability === 'delete' || $ability === 'forceDelete') {
+            return false;
+        }
+
         if ($user->role === Role::ROOT) {
             return true;
         }
@@ -73,14 +77,6 @@ class AppointmentPolicy
      */
     public function delete(User $user, Appointment $appointment): bool
     {
-        if ($user->role === Role::ADMIN) {
-            return true;
-        }
-
-        if ($user->role === Role::DOCTOR) {
-            return $user->doctor && $user->doctor->id === $appointment->doctor_id;
-        }
-
         return false;
     }
 
@@ -105,14 +101,6 @@ class AppointmentPolicy
      */
     public function forceDelete(User $user, Appointment $appointment): bool
     {
-        if ($user->role === Role::ADMIN) {
-            return true;
-        }
-
-        if ($user->role === Role::DOCTOR) {
-            return $user->doctor && $user->doctor->id === $appointment->doctor_id;
-        }
-
         return false;
     }
 }
