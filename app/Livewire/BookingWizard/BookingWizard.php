@@ -5,7 +5,6 @@ namespace App\Livewire\BookingWizard;
 use App\Enums\AppointmentStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
-use App\Enums\PaymentType;
 use App\Enums\Role;
 use App\Enums\Specialization;
 use App\Enums\TimeSlotStatus;
@@ -43,7 +42,7 @@ class BookingWizard extends Component
     public ?int $timeSlotId = null;
 
     // Step 4 User & Patient info
-    public string $paymentType = 'onsite'; // 'onsite' or 'online'
+    public string $paymentType = 'online'; // Always online in the new flow
     public bool $isLogin = false; // toggle between login & register
     public string $loginEmail = '';
     public string $loginPassword = '';
@@ -165,15 +164,6 @@ class BookingWizard extends Component
     public function selectService($id)
     {
         $this->serviceId = $id;
-
-        // Auto-select onsite/online if required
-        $service = Service::find($id);
-        if ($service && $service->required_prepayment) {
-            $this->paymentType = 'online';
-        } else {
-            $this->paymentType = 'onsite';
-        }
-
         $this->doctorId = null;
         $this->date = null;
         $this->timeSlotId = null;
@@ -303,13 +293,11 @@ class BookingWizard extends Component
     {
         $this->handleStep4Validation();
 
-        // If online payment, validate screenshot upload
-        if ($this->paymentType === 'online') {
-            $this->validate([
-                'paymentMethod' => 'required|in:card,qr',
-                'screenshot' => 'required|image|max:5120', // Max 5MB
-            ]);
-        }
+        // Enforce online payment validation (card/qr and screenshot proof are mandatory)
+        $this->validate([
+            'paymentMethod' => 'required|in:card,qr',
+            'screenshot' => 'required|image|max:5120', // Max 5MB
+        ]);
 
         try {
             DB::transaction(function () {
@@ -344,25 +332,22 @@ class BookingWizard extends Component
                     'doctor_id' => $this->doctorId,
                     'service_id' => $this->serviceId,
                     'time_slot_id' => $this->timeSlotId,
-                    'payment_type' => $this->paymentType === 'online' ? PaymentType::ONLINE : PaymentType::ONSITE,
-                    'status' => $this->paymentType === 'online' ? AppointmentStatus::PENDING : AppointmentStatus::CONFIRMED,
+                    'status' => AppointmentStatus::PENDING,
                 ]);
 
                 $timeSlot->update([
                     'status' => TimeSlotStatus::BOOKED
                 ]);
 
-                if ($this->paymentType === 'online') {
-                    $screenshotPath = $this->screenshot->store('payments', 'public');
-                    Payment::create([
-                        'appointment_id' => $appointment->id,
-                        'amount' => $this->selectedService->price,
-                        'method' => PaymentMethod::from($this->paymentMethod),
-                        'status' => PaymentStatus::PENDING,
-                        'screenshot' => $screenshotPath,
-                        'paid_at' => now()->toTimeString(),
-                    ]);
-                }
+                $screenshotPath = $this->screenshot->store('payments', 'public');
+                Payment::create([
+                    'appointment_id' => $appointment->id,
+                    'amount' => $this->selectedService->price,
+                    'method' => PaymentMethod::from($this->paymentMethod),
+                    'status' => PaymentStatus::PENDING_VERIFICATION,
+                    'screenshot' => $screenshotPath,
+                    'paid_at' => null, // Left null until Admin verifies and approves payment
+                ]);
             });
 
             session()->flash('message', 'Appointment booked successfully!');

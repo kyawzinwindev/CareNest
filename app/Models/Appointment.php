@@ -16,14 +16,13 @@ class Appointment extends Model
         'doctor_id',
         'service_id',
         'time_slot_id',
-        'payment_type',
-        'status'
+        'status',
+        'prescription'
     ];
 
     protected function casts(): array
     {
         return [
-            'payment_type' => PaymentType::class,
             'status' => AppointmentStatus::class
         ];
     }

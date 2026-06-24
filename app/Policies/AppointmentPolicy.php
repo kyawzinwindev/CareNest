@@ -53,7 +53,7 @@ class AppointmentPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role === Role::ADMIN || $user->role === Role::DOCTOR;
+        return $user->role === Role::ADMIN;
     }
 
     /**

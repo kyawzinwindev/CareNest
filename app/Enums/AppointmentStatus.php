@@ -7,6 +7,7 @@ enum AppointmentStatus: string
     case PENDING = 'pending';
     case CONFIRMED = 'confirmed';
     case CANCELLED = 'cancelled';
+    case FINISHED = 'finished';
 
     public function label(): string
     {
@@ -14,6 +15,7 @@ enum AppointmentStatus: string
             self::PENDING => 'Pending',
             self::CONFIRMED => 'Confirmed',
             self::CANCELLED => 'Cancelled',
+            self::FINISHED => 'Finished',
         };
     }
 

@@ -13,7 +13,6 @@ class Service extends Model
         'name',
         'description',
         'price',
-        'required_prepayment',
         'specialization'
     ];
 
@@ -21,7 +20,6 @@ class Service extends Model
     {
         return [
             'price' => 'decimal:2',
-            'required_prepayment' => 'bool',
             'specialization' => Specialization::class
         ];
     }

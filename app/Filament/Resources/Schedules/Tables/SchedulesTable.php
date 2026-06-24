@@ -20,6 +20,7 @@ class SchedulesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make("id")->label("ID"),
                 TextColumn::make("doctor.user.name"),

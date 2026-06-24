@@ -14,6 +14,9 @@ Route::middleware(['patient.only'])->group(function () {
     });
     Route::get('/booking', BookingWizard::class)->name('booking');
     Route::get('/appointments', PatientAppointments::class)->name('appointments')->middleware('auth');
+    Route::get('/appointments/{appointment}/medical-record', [App\Http\Controllers\MedicalRecordController::class, 'download'])
+        ->name('appointments.medical-record')
+        ->middleware('auth');
     Route::get('/profile', UserProfile::class)->name('profile')->middleware('auth');
 });
 

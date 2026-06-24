@@ -70,7 +70,7 @@ class AppointmentResource extends Resource
         return [
             'index' => ListAppointments::route('/'),
             'create' => CreateAppointment::route('/create'),
-            // 'edit' => EditAppointment::route('/{record}/edit'),
+            'edit' => EditAppointment::route('/{record}/edit'),
         ];
     }
 }

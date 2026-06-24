@@ -7,15 +7,11 @@ use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Models\Appointment;
 use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 
 class PaymentsTable
 {
@@ -44,8 +40,14 @@ class PaymentsTable
                 TextColumn::make('paid_at')
                     ->dateTime(),
 
-                SelectColumn::make('status')
-                    ->options(PaymentStatus::options()),
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (PaymentStatus $state): string => match ($state) {
+                        PaymentStatus::PENDING => 'warning',
+                        PaymentStatus::PENDING_VERIFICATION => 'info',
+                        PaymentStatus::PAID => 'success',
+                        PaymentStatus::FAILED => 'danger',
+                    }),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -54,7 +56,51 @@ class PaymentsTable
                     ->options(PaymentMethod::options()),
             ])
             ->actions([
-                //
+                Action::make('approve')
+                    ->label('Approve')
+                    ->icon('heroicon-o-check')
+                    ->color('success')
+                    ->visible(fn ($record) => $record->status === PaymentStatus::PENDING_VERIFICATION)
+                    ->requiresConfirmation()
+                    ->action(function ($record) {
+                        DB::transaction(function () use ($record) {
+                            $record->update([
+                                'status' => PaymentStatus::PAID,
+                                'paid_at' => now(),
+                            ]);
+                            $record->appointment->update([
+                                'status' => AppointmentStatus::CONFIRMED,
+                            ]);
+                        });
+                        
+                        \Filament\Notifications\Notification::make()
+                            ->title('Payment Approved')
+                            ->body('The payment has been marked as Paid and the appointment is now Confirmed.')
+                            ->success()
+                            ->send();
+                    }),
+                Action::make('reject')
+                    ->label('Reject')
+                    ->icon('heroicon-o-x-mark')
+                    ->color('danger')
+                    ->visible(fn ($record) => $record->status === PaymentStatus::PENDING_VERIFICATION)
+                    ->requiresConfirmation()
+                    ->action(function ($record) {
+                        DB::transaction(function () use ($record) {
+                            $record->update([
+                                'status' => PaymentStatus::FAILED,
+                            ]);
+                            $record->appointment->update([
+                                'status' => AppointmentStatus::CANCELLED,
+                            ]);
+                        });
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Payment Rejected')
+                            ->body('The payment has been marked as Failed and the appointment is now Cancelled.')
+                            ->danger()
+                            ->send();
+                    }),
             ]);
     }
 }

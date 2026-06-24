@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Appointments\Tables;
 use App\Enums\AppointmentStatus;
 use App\Enums\TimeSlotStatus;
 use Filament\Actions\Action;
+use Filament\Actions\EditAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\SelectColumn;
@@ -18,8 +19,9 @@ class AppointmentsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
             ->columns([
-                TextColumn::make("id")->label("ID"),
+                TextColumn::make("id", 'desc')->label("ID"),
                 TextColumn::make("patient.user.name")
                     ->label("Patient"),
                 TextColumn::make("doctor.user.name")
@@ -30,11 +32,15 @@ class AppointmentsTable
                     ->label("Service"),
                 TextColumn::make("time_slot.start_time")->label("Start Time"),
                 TextColumn::make("time_slot.end_time")->label("End Time"),
-                TextColumn::make('payment_type')
-                    ->label("Payment Type")
-                    ->badge(),
-                SelectColumn::make('status')
-                    ->options(AppointmentStatus::options()),
+
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (AppointmentStatus $state): string => match ($state) {
+                        AppointmentStatus::PENDING => 'warning',
+                        AppointmentStatus::CONFIRMED => 'info',
+                        AppointmentStatus::CANCELLED => 'danger',
+                        AppointmentStatus::FINISHED => 'success',
+                    }),
             ])
             ->filters([
                 SelectFilter::make("doctor")
@@ -62,7 +68,7 @@ class AppointmentsTable
                     ->preload(),
             ])
             ->actions([
-                //
+                EditAction::make(),
             ]);
     }
 }

@@ -47,14 +47,12 @@
                         <div class="space-y-3">
                             <div class="flex flex-wrap items-center gap-2">
                                 <span class="text-xs font-semibold text-slate-500 uppercase">Appt #{{ $appointment->id }}</span>
-                                <span class="text-xs font-bold px-2 py-0.5 rounded-full  tracking-wider
+                                <span class="text-xs font-bold px-2 py-0.5 rounded-full tracking-wider
                                     {{ $appointment->status === App\Enums\AppointmentStatus::CONFIRMED ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
                                        ($appointment->status === App\Enums\AppointmentStatus::PENDING ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
-                                        'bg-rose-500/10 text-rose-400 border border-rose-500/20') }}">
+                                        ($appointment->status === App\Enums\AppointmentStatus::FINISHED ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' :
+                                         'bg-rose-500/10 text-rose-400 border border-rose-500/20')) }}">
                                     {{ $appointment->status->label() }}
-                                </span>
-                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-950 text-slate-400 border border-slate-800">
-                                    {{ $appointment->payment_type->label() }}
                                 </span>
                             </div>
 
@@ -81,6 +79,15 @@
                                     class="text-xs font-semibold text-rose-400 hover:text-rose-350 hover:bg-rose-500/10 px-3.5 py-2 rounded-xl border border-rose-500/20 hover:border-rose-500/30 transition-all w-full md:w-auto text-center">
                                     Cancel Booking
                                 </button>
+                            @elseif ($appointment->status === App\Enums\AppointmentStatus::FINISHED)
+                                <a href="{{ route('appointments.medical-record', $appointment->id) }}"
+                                   class="text-xs font-bold text-cyan-400 hover:text-cyan-350 hover:bg-cyan-500/10 px-4 py-2.5 rounded-xl border border-cyan-500/20 hover:border-cyan-500/30 transition-all w-full md:w-auto text-center flex items-center justify-center gap-1.5"
+                                   target="_blank">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                    </svg>
+                                    Medical Record PDF
+                                </a>
                             @else
                                 <span class="text-xs text-slate-600 italic">No actions available</span>
                             @endif

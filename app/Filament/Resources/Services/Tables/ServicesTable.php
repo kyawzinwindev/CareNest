@@ -30,13 +30,6 @@ class ServicesTable
                     ->tooltip(fn($state): string => $state)
                     ->searchable(),
                 TextColumn::make("price"),
-                IconColumn::make('required_prepayment')
-                    ->label("Required Prepayment")
-                    ->boolean()
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('danger'),
                 TextColumn::make("specialization")
                     ->label("Specialization")
                     ->formatStateUsing(fn($state) => $state?->label() ?? '')

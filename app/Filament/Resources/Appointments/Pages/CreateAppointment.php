@@ -3,9 +3,10 @@
 namespace App\Filament\Resources\Appointments\Pages;
 
 use App\Enums\AppointmentStatus;
-use App\Enums\PaymentType;
 use App\Enums\Role;
 use App\Enums\TimeSlotStatus;
+use App\Enums\PaymentMethod;
+use App\Enums\PaymentStatus;
 use App\Filament\Resources\Appointments\AppointmentResource;
 use App\Models\TimeSlot;
 use Filament\Notifications\Notification;
@@ -18,6 +19,8 @@ class CreateAppointment extends CreateRecord
 {
     protected static string $resource = AppointmentResource::class;
 
+    protected array $paymentData = [];
+
     #[Override]
     protected function mutateFormDataBeforeCreate(array $data): array
     {
@@ -28,7 +31,16 @@ class CreateAppointment extends CreateRecord
         }
 
         $data['status'] = AppointmentStatus::CONFIRMED;
-        $data['payment_type'] = PaymentType::ONSITE;
+
+        // Extract payment information
+        $this->paymentData = [
+            'method' => $data['payment_method'] ?? null,
+            'amount' => $data['payment_amount'] ?? null,
+            'screenshot' => $data['payment_screenshot'] ?? null,
+        ];
+
+        // Remove payment fields from appointment data
+        unset($data['payment_method'], $data['payment_amount'], $data['payment_screenshot']);
 
         return $data;
     }
@@ -64,5 +76,17 @@ class CreateAppointment extends CreateRecord
         $this->record->time_slot->update([
             'status' => TimeSlotStatus::BOOKED
         ]);
+
+        // Create the associated Payment record
+        if ($this->paymentData['method'] && $this->paymentData['amount']) {
+            \App\Models\Payment::create([
+                'appointment_id' => $this->record->id,
+                'amount' => $this->paymentData['amount'],
+                'method' => PaymentMethod::from($this->paymentData['method']),
+                'screenshot' => $this->paymentData['screenshot'],
+                'status' => PaymentStatus::PAID,
+                'paid_at' => now(),
+            ]);
+        }
     }
 }

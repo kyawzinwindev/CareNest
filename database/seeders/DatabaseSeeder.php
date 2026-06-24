@@ -14,7 +14,6 @@ use App\Enums\Role;
 use App\Enums\Specialization;
 use App\Enums\TimeSlotStatus;
 use App\Enums\AppointmentStatus;
-use App\Enums\PaymentType;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentMethod;
 use Illuminate\Database\Seeder;
@@ -50,70 +49,60 @@ class DatabaseSeeder extends Seeder
                 'name' => 'General Consultation',
                 'description' => 'Routine general medical checkup, history taking, and prescription guidance.',
                 'price' => 40.00,
-                'required_prepayment' => false,
                 'specialization' => Specialization::GENERAL_MEDICINE,
             ],
             [
                 'name' => 'Comprehensive Annual Checkup',
                 'description' => 'Thorough medical assessment, vital signs screening, and blood report analysis.',
                 'price' => 120.00,
-                'required_prepayment' => true,
                 'specialization' => Specialization::GENERAL_MEDICINE,
             ],
             [
                 'name' => 'Electrocardiogram (ECG) Evaluation',
                 'description' => 'Advanced heart activity monitoring and specialized cardiological feedback.',
                 'price' => 150.00,
-                'required_prepayment' => true,
                 'specialization' => Specialization::CARDIOLOGY,
             ],
             [
                 'name' => 'Pediatric Well-Child Exam',
                 'description' => 'Physical growth assessment, milestones tracking, and general health review for children.',
                 'price' => 75.00,
-                'required_prepayment' => false,
                 'specialization' => Specialization::PEDIATRICS,
             ],
             [
                 'name' => 'Acne & Skin Lesion Consultation',
                 'description' => 'Specialized dermatology consultation focusing on skincare, acne treatment, and diagnostic patches.',
                 'price' => 90.00,
-                'required_prepayment' => false,
                 'specialization' => Specialization::DERMATOLOGY,
             ],
             [
                 'name' => 'Neurological Reflex & EEG Review',
                 'description' => 'Comprehensive assessment of neurological systems, sensory testing, and electroencephalogram readings.',
                 'price' => 250.00,
-                'required_prepayment' => true,
                 'specialization' => Specialization::NEUROLOGY,
             ],
             [
                 'name' => 'Joint Pain & Orthopedic Exam',
                 'description' => 'Evaluation of muscle pain, bone fractures, joints alignment, and physical mobility tests.',
                 'price' => 110.00,
-                'required_prepayment' => false,
                 'specialization' => Specialization::ORTHOPEDICS,
             ],
             [
                 'name' => 'Routine Eye & Vision Test',
                 'description' => 'Ophthalmological screening including visual acuity tests and eyeglasses check.',
                 'price' => 60.00,
-                'required_prepayment' => false,
                 'specialization' => Specialization::OPHTHALMOLOGY,
             ],
             [
                 'name' => 'Prenatal Wellness Consultation',
                 'description' => 'Clinical gynecological checkup monitoring pregnancy progression, ultrasound readings, and fetal vitals.',
                 'price' => 130.00,
-                'required_prepayment' => true,
                 'specialization' => Specialization::GYNECOLOGY,
             ],
             [
                 'name' => 'Pediatric Vaccination Consultation',
                 'description' => 'Consultation mapping child immunizations and minor health follow-ups.',
                 'price' => 50.00,
-                'required_prepayment' => false,
                 'specialization' => Specialization::PEDIATRICS,
             ],
         ];
@@ -234,33 +223,33 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // 7. Create at least 12 Appointments & 10 Payment records
-        // Appointment mapping structure: [patient_index, doctor_index, service_index, schedule_index, slot_offset, type, status, payment_method, payment_status, screenshot]
+        // 7. Create at least 12 Appointments & 12 Payment records (Online Prepayment Only)
+        // Appointment mapping structure: [patient_index, doctor_index, service_index, schedule_index, slot_offset, status, payment_method, payment_status, screenshot, prescription]
         $appointmentsMapping = [
-            // 1. Onsite confirmed (no payment record)
-            [0, 3, 0, 3, 0, PaymentType::ONSITE, AppointmentStatus::CONFIRMED, null, null, null], 
+            // 1. Finished appointment with prescription
+            [0, 3, 0, 3, 0, AppointmentStatus::FINISHED, PaymentMethod::CARD, PaymentStatus::PAID, null, 'Patient presented with mild fever. Advised bed rest and Paracetamol 500mg.'], 
             // 2. Online paid
-            [1, 0, 2, 0, 0, PaymentType::ONLINE, AppointmentStatus::CONFIRMED, PaymentMethod::CARD, PaymentStatus::PAID, null],
-            // 3. Online pending QR
-            [2, 2, 4, 2, 0, PaymentType::ONLINE, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING, 'payments/mock_qr_1.png'],
+            [1, 0, 2, 0, 0, AppointmentStatus::CONFIRMED, PaymentMethod::CARD, PaymentStatus::PAID, null, null],
+            // 3. Online pending QR (pending verification)
+            [2, 2, 4, 2, 0, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING_VERIFICATION, 'payments/mock_qr_1.png', null],
             // 4. Online failed card (cancelled)
-            [3, 1, 3, 1, 0, PaymentType::ONLINE, AppointmentStatus::CANCELLED, PaymentMethod::CARD, PaymentStatus::FAILED, null],
-            // 5. Online pending QR
-            [4, 4, 5, 4, 0, PaymentType::ONLINE, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING, 'payments/mock_qr_2.png'],
-            // 6. Online paid card
-            [5, 5, 6, 6, 1, PaymentType::ONLINE, AppointmentStatus::CONFIRMED, PaymentMethod::CARD, PaymentStatus::PAID, 'payments/mock_card_1.png'],
-            // 7. Online pending QR
-            [6, 6, 8, 7, 0, PaymentType::ONLINE, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING, 'payments/mock_qr_3.png'],
-            // 8. Onsite pending
-            [7, 7, 7, 8, 1, PaymentType::ONSITE, AppointmentStatus::PENDING, null, null, null],
+            [3, 1, 3, 1, 0, AppointmentStatus::CANCELLED, PaymentMethod::CARD, PaymentStatus::FAILED, null, null],
+            // 5. Online pending QR (pending verification)
+            [4, 4, 5, 4, 0, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING_VERIFICATION, 'payments/mock_qr_2.png', null],
+            // 6. Finished appointment with prescription
+            [5, 5, 6, 6, 1, AppointmentStatus::FINISHED, PaymentMethod::CARD, PaymentStatus::PAID, 'payments/mock_card_1.png', 'Follow-up for heart rate monitoring. Readings are stable. Continue current medication.'],
+            // 7. Online pending QR (pending verification)
+            [6, 6, 8, 7, 0, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING_VERIFICATION, 'payments/mock_qr_3.png', null],
+            // 8. Online pending QR (pending verification)
+            [7, 7, 7, 8, 1, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING_VERIFICATION, 'payments/mock_qr_6.png', null],
             // 9. Online paid card
-            [8, 8, 1, 9, 0, PaymentType::ONLINE, AppointmentStatus::CONFIRMED, PaymentMethod::CARD, PaymentStatus::PAID, 'payments/mock_card_2.png'],
-            // 10. Online pending QR
-            [9, 9, 9, 12, 0, PaymentType::ONLINE, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING, 'payments/mock_qr_4.png'],
+            [8, 8, 1, 9, 0, AppointmentStatus::CONFIRMED, PaymentMethod::CARD, PaymentStatus::PAID, 'payments/mock_card_2.png', null],
+            // 10. Online pending QR (pending verification)
+            [9, 9, 9, 12, 0, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING_VERIFICATION, 'payments/mock_qr_4.png', null],
             // 11. Online paid card
-            [10, 0, 2, 10, 1, PaymentType::ONLINE, AppointmentStatus::CONFIRMED, PaymentMethod::CARD, PaymentStatus::PAID, null],
-            // 12. Online pending QR
-            [11, 2, 4, 11, 1, PaymentType::ONLINE, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING, 'payments/mock_qr_5.png'],
+            [10, 0, 2, 10, 1, AppointmentStatus::CONFIRMED, PaymentMethod::CARD, PaymentStatus::PAID, null, null],
+            // 12. Online pending QR (pending verification)
+            [11, 2, 4, 11, 1, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING_VERIFICATION, 'payments/mock_qr_5.png', null],
         ];
 
         foreach ($appointmentsMapping as $map) {
@@ -278,21 +267,19 @@ class DatabaseSeeder extends Seeder
                     'doctor_id' => $doctor->id,
                     'service_id' => $service->id,
                     'time_slot_id' => $slot->id,
-                    'payment_type' => $map[5],
-                    'status' => $map[6],
+                    'status' => $map[5],
+                    'prescription' => $map[9],
                 ]);
 
-                // Create payment if payment method is provided
-                if ($map[7] !== null) {
-                    Payment::create([
-                        'amount' => $service->price,
-                        'method' => $map[7],
-                        'status' => $map[8],
-                        'screenshot' => $map[9],
-                        'appointment_id' => $appointment->id,
-                        'paid_at' => Carbon::now()->subMinutes(15)->format('H:i:s'),
-                    ]);
-                }
+                // Create payment as every appointment strictly requires payment
+                Payment::create([
+                    'amount' => $service->price,
+                    'method' => $map[6],
+                    'status' => $map[7],
+                    'screenshot' => $map[8],
+                    'appointment_id' => $appointment->id,
+                    'paid_at' => $map[7] === PaymentStatus::PAID ? Carbon::now()->subMinutes(15) : null,
+                ]);
             }
         }
     }

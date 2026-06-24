@@ -23,9 +23,6 @@ class ServiceForm
                 TextInput::make('price')
                     ->numeric()
                     ->required(),
-                Toggle::make('required_prepayment')
-                    ->label('Require Prepayment')
-                    ->default(false),
                 Select::make('specialization')
                     ->options(Specialization::class)
                     ->required(),
