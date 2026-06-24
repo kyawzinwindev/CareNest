@@ -37,7 +37,7 @@ class AppointmentForm
                     ->searchable()
                     ->preload()
                     ->required()
-                    ->disabled(fn ($record) => auth()->user()->role === Role::DOCTOR || ($record && in_array($record->status, [AppointmentStatus::FINISHED, AppointmentStatus::CANCELLED]))),
+                    ->disabled(fn ($record) => $record !== null),
                 Select::make('doctor_id')
                     ->relationship(
                         'doctor',
@@ -55,7 +55,7 @@ class AppointmentForm
                     ->required()
                     ->live()
                     ->default(fn() => auth()->user()?->role === Role::DOCTOR ? auth()->user()?->doctor?->id : null)
-                    ->disabled(fn ($record) => auth()->user()?->role === Role::DOCTOR || ($record && in_array($record->status, [AppointmentStatus::FINISHED, AppointmentStatus::CANCELLED])))
+                    ->disabled(fn ($record) => $record !== null)
                     ->dehydrated()
                     ->afterStateUpdated(fn(Set $set) => [
                         $set('service_id', null),
@@ -92,7 +92,7 @@ class AppointmentForm
                             $set('payment_amount', null);
                         }
                     })
-                    ->disabled(fn ($record) => auth()->user()->role === Role::DOCTOR || ($record && in_array($record->status, [AppointmentStatus::FINISHED, AppointmentStatus::CANCELLED]))),
+                    ->disabled(fn ($record) => $record !== null),
                 Select::make('schedule_id')
                     ->label("Available Schedules")
                     ->options(function (Get $get) {
@@ -109,14 +109,19 @@ class AppointmentForm
                     })
                     ->required()
                     ->live()
+                    ->afterStateHydrated(function (Set $set, $record) {
+                        if ($record && $record->time_slot) {
+                            $set('schedule_id', $record->time_slot->schedule_id);
+                        }
+                    })
                     ->afterStateUpdated(
                         fn(Set $set) =>
                         $set('time_slot_id', null)
                     )
-                    ->disabled(fn ($record) => auth()->user()->role === Role::DOCTOR || ($record && in_array($record->status, [AppointmentStatus::FINISHED, AppointmentStatus::CANCELLED]))),
+                    ->disabled(fn ($record) => $record !== null),
                 Select::make('time_slot_id')
                     ->label("Available Time Slots")
-                    ->options(function (Get $get) {
+                    ->options(function (Get $get, $record) {
 
                         $scheduleId = $get('schedule_id');
 
@@ -124,10 +129,19 @@ class AppointmentForm
                             return [];
                         }
 
-                        return \App\Models\TimeSlot::query()
-                            ->where('schedule_id', $scheduleId)
-                            ->where('status', TimeSlotStatus::AVAILABLE)
-                            ->get()
+                        $query = \App\Models\TimeSlot::query()
+                            ->where('schedule_id', $scheduleId);
+
+                        if ($record) {
+                            $query->where(function ($q) use ($record) {
+                                $q->where('status', TimeSlotStatus::AVAILABLE)
+                                  ->orWhere('id', $record->time_slot_id);
+                            });
+                        } else {
+                            $query->where('status', TimeSlotStatus::AVAILABLE);
+                        }
+
+                        return $query->get()
                             ->mapWithKeys(fn($slot) => [
                                 $slot->id =>
                                 $slot->start_time . ' - ' . $slot->end_time
@@ -135,7 +149,7 @@ class AppointmentForm
                     })
                     ->searchable()
                     ->required()
-                    ->disabled(fn ($record) => auth()->user()->role === Role::DOCTOR || ($record && in_array($record->status, [AppointmentStatus::FINISHED, AppointmentStatus::CANCELLED]))),
+                    ->disabled(fn ($record) => $record !== null),
                 Section::make('Payment Information')
                     ->description('Provide payment details for this appointment.')
                     ->schema([
@@ -151,6 +165,7 @@ class AppointmentForm
                         FileUpload::make('payment_screenshot')
                             ->label('Payslip Upload (Screenshot)')
                             ->image()
+                            ->disk('public')
                             ->directory('payments')
                             ->visibility('public')
                             ->required(),
@@ -189,6 +204,18 @@ class AppointmentForm
                                 }
                                 return false; // Admins can change status
                             })
+                            ->rules([
+                                fn ($record) => function (string $attribute, $value, \Closure $fail) use ($record) {
+                                    if ($value === AppointmentStatus::CONFIRMED->value) {
+                                        if ($record) {
+                                            $payment = $record->payment;
+                                            if (!$payment || $payment->status !== \App\Enums\PaymentStatus::PAID) {
+                                                $fail('Appointment cannot be confirmed because payment status is not Paid.');
+                                            }
+                                        }
+                                    }
+                                }
+                            ])
                             ->dehydrated(),
                     ])
                     ->visible(fn ($record) => $record !== null),

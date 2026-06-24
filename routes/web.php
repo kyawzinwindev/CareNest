@@ -29,3 +29,23 @@ Route::post('/logout', function () {
     request()->session()->regenerateToken();
     return redirect('/');
 })->name('logout')->middleware('auth');
+
+Route::middleware(['auth', 'patient.only'])->group(function () {
+    Route::get('/api/notifications', function () {
+        return response()->json([
+            'success' => true,
+            'data' => auth()->user()->notifications()->latest()->get()
+        ]);
+    });
+
+    Route::post('/api/notifications/{notification}/read', function (\App\Models\Notification $notification) {
+        if ($notification->user_id !== auth()->id()) {
+            abort(403);
+        }
+        $notification->update(['is_read' => true]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Notification marked as read.'
+        ]);
+    });
+});

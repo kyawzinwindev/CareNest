@@ -344,7 +344,7 @@ class BookingWizard extends Component
                     'appointment_id' => $appointment->id,
                     'amount' => $this->selectedService->price,
                     'method' => PaymentMethod::from($this->paymentMethod),
-                    'status' => PaymentStatus::PENDING_VERIFICATION,
+                    'status' => PaymentStatus::PENDING,
                     'screenshot' => $screenshotPath,
                     'paid_at' => null, // Left null until Admin verifies and approves payment
                 ]);

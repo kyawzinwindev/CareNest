@@ -13,7 +13,6 @@ use App\Models\Payment;
 use App\Enums\Role;
 use App\Enums\PaymentStatus;
 use App\Enums\PaymentMethod;
-use App\Enums\PaymentType;
 use App\Enums\AppointmentStatus;
 use App\Enums\TimeSlotStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,7 +37,6 @@ class CareNestBusinessLogicTest extends TestCase
             'name' => 'Cardio Consultation',
             'description' => 'Test cardiology service description',
             'price' => 1500,
-            'required_prepayment' => true,
             'specialization' => \App\Enums\Specialization::CARDIOLOGY
         ]);
 
@@ -58,7 +56,6 @@ class CareNestBusinessLogicTest extends TestCase
             'doctor_id' => $doctor->id,
             'service_id' => $service->id,
             'time_slot_id' => $timeSlot->id,
-            'payment_type' => PaymentType::ONLINE,
             'status' => AppointmentStatus::PENDING,
         ]);
 
@@ -69,7 +66,7 @@ class CareNestBusinessLogicTest extends TestCase
             'method' => PaymentMethod::CARD,
             'status' => PaymentStatus::PENDING,
             'screenshot' => 'payments/dummy.png',
-            'paid_at' => now()->toTimeString(),
+            'paid_at' => now(),
         ]);
 
         $this->assertEquals(AppointmentStatus::PENDING, $appointment->fresh()->status);
@@ -96,7 +93,6 @@ class CareNestBusinessLogicTest extends TestCase
             'name' => 'Cardio Consultation',
             'description' => 'Test cardiology service description',
             'price' => 1500,
-            'required_prepayment' => true,
             'specialization' => \App\Enums\Specialization::CARDIOLOGY
         ]);
 
@@ -116,7 +112,6 @@ class CareNestBusinessLogicTest extends TestCase
             'doctor_id' => $doctor->id,
             'service_id' => $service->id,
             'time_slot_id' => $timeSlot->id,
-            'payment_type' => PaymentType::ONLINE,
             'status' => AppointmentStatus::CONFIRMED,
         ]);
 
@@ -143,7 +138,6 @@ class CareNestBusinessLogicTest extends TestCase
             'name' => 'Cardio Consultation',
             'description' => 'Test cardiology service description',
             'price' => 1500,
-            'required_prepayment' => true,
             'specialization' => \App\Enums\Specialization::CARDIOLOGY
         ]);
 
@@ -161,7 +155,6 @@ class CareNestBusinessLogicTest extends TestCase
             'doctor_id' => $doctor->id,
             'service_id' => $service->id,
             'time_slot_id' => $timeSlot->id,
-            'payment_type' => PaymentType::ONLINE,
             'status' => AppointmentStatus::CONFIRMED,
         ]);
 
@@ -184,5 +177,108 @@ class CareNestBusinessLogicTest extends TestCase
         $this->actingAs($patientUser);
         $this->assertFalse($patientUser->can('delete', $appointment));
         $this->assertFalse($patientUser->can('forceDelete', $appointment));
+    }
+
+    public function test_confirming_appointment_without_paid_payment_throws_validation_exception()
+    {
+        $patientUser = User::factory()->create(['role' => Role::PATIENT]);
+        $patient = Patient::create(['user_id' => $patientUser->id, 'dob' => '1995-05-15', 'weight' => 70, 'height' => 175]);
+
+        $doctorUser = User::factory()->create(['role' => Role::DOCTOR]);
+        $doctor = Doctor::create(['user_id' => $doctorUser->id, 'specialization' => \App\Enums\Specialization::CARDIOLOGY]);
+
+        $service = Service::create([
+            'name' => 'Cardio Consultation',
+            'description' => 'Test cardiology service description',
+            'price' => 1500,
+            'specialization' => \App\Enums\Specialization::CARDIOLOGY
+        ]);
+
+        $schedule = Schedule::create([
+            'doctor_id' => $doctor->id,
+            'date' => now()->addDay()->format('Y-m-d'),
+            'start_time' => '09:00:00',
+            'end_time' => '17:00:00',
+            'slot_duration_minutes' => 60
+        ]);
+        $timeSlot = TimeSlot::create(['schedule_id' => $schedule->id, 'start_time' => '10:00:00', 'end_time' => '11:00:00', 'status' => TimeSlotStatus::BOOKED]);
+
+        $appointment = Appointment::create([
+            'patient_id' => $patient->id,
+            'doctor_id' => $doctor->id,
+            'service_id' => $service->id,
+            'time_slot_id' => $timeSlot->id,
+            'status' => AppointmentStatus::PENDING,
+        ]);
+
+        $payment = Payment::create([
+            'appointment_id' => $appointment->id,
+            'amount' => 1500,
+            'method' => PaymentMethod::CARD,
+            'status' => PaymentStatus::PENDING,
+        ]);
+
+        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectExceptionMessage('Appointment cannot be confirmed because payment status is not Paid.');
+
+        $appointment->update(['status' => AppointmentStatus::CONFIRMED]);
+    }
+
+    public function test_confirming_appointment_with_paid_payment_creates_notification_and_sends_email()
+    {
+        \Illuminate\Support\Facades\Mail::fake();
+
+        $patientUser = User::factory()->create(['role' => Role::PATIENT]);
+        $patient = Patient::create(['user_id' => $patientUser->id, 'dob' => '1995-05-15', 'weight' => 70, 'height' => 175]);
+
+        $doctorUser = User::factory()->create(['role' => Role::DOCTOR]);
+        $doctor = Doctor::create(['user_id' => $doctorUser->id, 'specialization' => \App\Enums\Specialization::CARDIOLOGY]);
+
+        $service = Service::create([
+            'name' => 'Cardio Consultation',
+            'description' => 'Test cardiology service description',
+            'price' => 1500,
+            'specialization' => \App\Enums\Specialization::CARDIOLOGY
+        ]);
+
+        $schedule = Schedule::create([
+            'doctor_id' => $doctor->id,
+            'date' => now()->addDay()->format('Y-m-d'),
+            'start_time' => '09:00:00',
+            'end_time' => '17:00:00',
+            'slot_duration_minutes' => 60
+        ]);
+        $timeSlot = TimeSlot::create(['schedule_id' => $schedule->id, 'start_time' => '10:00:00', 'end_time' => '11:00:00', 'status' => TimeSlotStatus::BOOKED]);
+
+        $appointment = Appointment::create([
+            'patient_id' => $patient->id,
+            'doctor_id' => $doctor->id,
+            'service_id' => $service->id,
+            'time_slot_id' => $timeSlot->id,
+            'status' => AppointmentStatus::PENDING,
+        ]);
+
+        $payment = Payment::create([
+            'appointment_id' => $appointment->id,
+            'amount' => 1500,
+            'method' => PaymentMethod::CARD,
+            'status' => PaymentStatus::PAID,
+        ]);
+
+        $appointment->update(['status' => AppointmentStatus::CONFIRMED]);
+
+        $this->assertEquals(AppointmentStatus::CONFIRMED, $appointment->fresh()->status);
+
+        // Assert notification created
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $patientUser->id,
+            'appointment_id' => $appointment->id,
+            'title' => 'Appointment Confirmed',
+        ]);
+
+        // Assert email queued
+        \Illuminate\Support\Facades\Mail::assertQueued(\App\Mail\AppointmentConfirmedMail::class, function ($mail) use ($appointment) {
+            return $mail->appointment->id === $appointment->id;
+        });
     }
 }

@@ -231,25 +231,25 @@ class DatabaseSeeder extends Seeder
             // 2. Online paid
             [1, 0, 2, 0, 0, AppointmentStatus::CONFIRMED, PaymentMethod::CARD, PaymentStatus::PAID, null, null],
             // 3. Online pending QR (pending verification)
-            [2, 2, 4, 2, 0, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING_VERIFICATION, 'payments/mock_qr_1.png', null],
+            [2, 2, 4, 2, 0, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING, 'payments/mock_qr_1.png', null],
             // 4. Online failed card (cancelled)
             [3, 1, 3, 1, 0, AppointmentStatus::CANCELLED, PaymentMethod::CARD, PaymentStatus::FAILED, null, null],
             // 5. Online pending QR (pending verification)
-            [4, 4, 5, 4, 0, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING_VERIFICATION, 'payments/mock_qr_2.png', null],
+            [4, 4, 5, 4, 0, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING, 'payments/mock_qr_2.png', null],
             // 6. Finished appointment with prescription
             [5, 5, 6, 6, 1, AppointmentStatus::FINISHED, PaymentMethod::CARD, PaymentStatus::PAID, 'payments/mock_card_1.png', 'Follow-up for heart rate monitoring. Readings are stable. Continue current medication.'],
             // 7. Online pending QR (pending verification)
-            [6, 6, 8, 7, 0, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING_VERIFICATION, 'payments/mock_qr_3.png', null],
+            [6, 6, 8, 7, 0, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING, 'payments/mock_qr_3.png', null],
             // 8. Online pending QR (pending verification)
-            [7, 7, 7, 8, 1, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING_VERIFICATION, 'payments/mock_qr_6.png', null],
+            [7, 7, 7, 8, 1, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING, 'payments/mock_qr_6.png', null],
             // 9. Online paid card
             [8, 8, 1, 9, 0, AppointmentStatus::CONFIRMED, PaymentMethod::CARD, PaymentStatus::PAID, 'payments/mock_card_2.png', null],
             // 10. Online pending QR (pending verification)
-            [9, 9, 9, 12, 0, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING_VERIFICATION, 'payments/mock_qr_4.png', null],
+            [9, 9, 9, 12, 0, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING, 'payments/mock_qr_4.png', null],
             // 11. Online paid card
             [10, 0, 2, 10, 1, AppointmentStatus::CONFIRMED, PaymentMethod::CARD, PaymentStatus::PAID, null, null],
             // 12. Online pending QR (pending verification)
-            [11, 2, 4, 11, 1, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING_VERIFICATION, 'payments/mock_qr_5.png', null],
+            [11, 2, 4, 11, 1, AppointmentStatus::PENDING, PaymentMethod::QR, PaymentStatus::PENDING, 'payments/mock_qr_5.png', null],
         ];
 
         foreach ($appointmentsMapping as $map) {

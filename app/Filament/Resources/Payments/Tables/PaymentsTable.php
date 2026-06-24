@@ -44,7 +44,6 @@ class PaymentsTable
                     ->badge()
                     ->color(fn (PaymentStatus $state): string => match ($state) {
                         PaymentStatus::PENDING => 'warning',
-                        PaymentStatus::PENDING_VERIFICATION => 'info',
                         PaymentStatus::PAID => 'success',
                         PaymentStatus::FAILED => 'danger',
                     }),
@@ -60,7 +59,7 @@ class PaymentsTable
                     ->label('Approve')
                     ->icon('heroicon-o-check')
                     ->color('success')
-                    ->visible(fn ($record) => $record->status === PaymentStatus::PENDING_VERIFICATION)
+                    ->visible(fn ($record) => $record->status === PaymentStatus::PENDING)
                     ->requiresConfirmation()
                     ->action(function ($record) {
                         DB::transaction(function () use ($record) {
@@ -83,7 +82,7 @@ class PaymentsTable
                     ->label('Reject')
                     ->icon('heroicon-o-x-mark')
                     ->color('danger')
-                    ->visible(fn ($record) => $record->status === PaymentStatus::PENDING_VERIFICATION)
+                    ->visible(fn ($record) => $record->status === PaymentStatus::PENDING)
                     ->requiresConfirmation()
                     ->action(function ($record) {
                         DB::transaction(function () use ($record) {

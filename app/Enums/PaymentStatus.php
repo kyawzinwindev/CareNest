@@ -5,7 +5,6 @@ namespace App\Enums;
 enum PaymentStatus: string
 {
     case PENDING = 'pending';
-    case PENDING_VERIFICATION = 'pending_verification';
     case PAID = 'paid';
     case FAILED = 'failed';
 
@@ -13,7 +12,6 @@ enum PaymentStatus: string
     {
         return match ($this) {
             self::PENDING => 'Pending',
-            self::PENDING_VERIFICATION => 'Pending Verification',
             self::PAID => 'Paid',
             self::FAILED => 'Failed'
         };

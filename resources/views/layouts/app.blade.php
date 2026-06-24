@@ -43,6 +43,10 @@
                 <!-- Actions -->
                 <div class="flex items-center gap-4">
                     @auth
+                        @if(auth()->user()->role === App\Enums\Role::PATIENT)
+                            <livewire:notification-bell />
+                        @endif
+
                         <!-- Alpine.js User Dropdown -->
                         <div x-data="{ open: false }" class="relative">
                             <button @click="open = !open" @click.away="open = false" class="flex items-center gap-2 p-1.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-800/80 hover:border-slate-700 transition-all focus:outline-none">
