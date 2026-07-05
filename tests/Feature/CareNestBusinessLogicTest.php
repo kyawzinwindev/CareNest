@@ -281,4 +281,154 @@ class CareNestBusinessLogicTest extends TestCase
             return $mail->appointment->id === $appointment->id;
         });
     }
+
+    public function test_appointment_cancellation_service_authorizes_correctly()
+    {
+        // 1. Setup Patient 1 and Patient 2
+        $patientUser1 = User::factory()->create(['role' => Role::PATIENT]);
+        $patient1 = Patient::create(['user_id' => $patientUser1->id, 'dob' => '1995-05-15', 'weight' => 70, 'height' => 175]);
+
+        $patientUser2 = User::factory()->create(['role' => Role::PATIENT]);
+        $patient2 = Patient::create(['user_id' => $patientUser2->id, 'dob' => '1995-05-15', 'weight' => 70, 'height' => 175]);
+
+        // 2. Setup Doctor 1 and Doctor 2
+        $doctorUser1 = User::factory()->create(['role' => Role::DOCTOR]);
+        $doctor1 = Doctor::create(['user_id' => $doctorUser1->id, 'specialization' => \App\Enums\Specialization::CARDIOLOGY]);
+
+        $doctorUser2 = User::factory()->create(['role' => Role::DOCTOR]);
+        $doctor2 = Doctor::create(['user_id' => $doctorUser2->id, 'specialization' => \App\Enums\Specialization::CARDIOLOGY]);
+
+        // 3. Setup Admin
+        $adminUser = User::factory()->create(['role' => Role::ADMIN]);
+
+        // 4. Setup Service
+        $service = Service::create([
+            'name' => 'Cardio Consultation',
+            'description' => 'Test cardiology service description',
+            'price' => 1500,
+            'specialization' => \App\Enums\Specialization::CARDIOLOGY
+        ]);
+
+        // 5. Setup Schedule and TimeSlot for Doctor 1
+        $schedule = Schedule::create([
+            'doctor_id' => $doctor1->id,
+            'date' => now()->addDay()->format('Y-m-d'),
+            'start_time' => '09:00:00',
+            'end_time' => '17:00:00',
+            'slot_duration_minutes' => 60
+        ]);
+        $timeSlot = TimeSlot::create(['schedule_id' => $schedule->id, 'start_time' => '10:00:00', 'end_time' => '11:00:00', 'status' => TimeSlotStatus::BOOKED]);
+
+        // 6. Create Appointment for Patient 1 with Doctor 1
+        $appointment = Appointment::create([
+            'patient_id' => $patient1->id,
+            'doctor_id' => $doctor1->id,
+            'service_id' => $service->id,
+            'time_slot_id' => $timeSlot->id,
+            'status' => AppointmentStatus::PENDING,
+        ]);
+
+        $serviceInstance = app(\App\Services\AppointmentCancellationService::class);
+
+        // A. Patient 2 cannot cancel Patient 1's appointment
+        $this->actingAs($patientUser2);
+        try {
+            $serviceInstance->cancel($appointment);
+            $this->fail('Patient 2 was able to cancel Patient 1\'s appointment.');
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            $this->assertTrue(true);
+        }
+
+        // B. Doctor 2 cannot cancel Doctor 1's appointment
+        $this->actingAs($doctorUser2);
+        try {
+            $serviceInstance->cancel($appointment);
+            $this->fail('Doctor 2 was able to cancel Doctor 1\'s appointment.');
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            $this->assertTrue(true);
+        }
+
+        // C. Patient 1 can cancel their own appointment
+        $this->actingAs($patientUser1);
+        $serviceInstance->cancel($appointment);
+        $this->assertEquals(AppointmentStatus::CANCELLED, $appointment->fresh()->status);
+
+        // Reset status for further tests
+        $appointment->update(['status' => AppointmentStatus::PENDING]);
+
+        // D. Doctor 1 can cancel their own appointment
+        $this->actingAs($doctorUser1);
+        $serviceInstance->cancel($appointment);
+        $this->assertEquals(AppointmentStatus::CANCELLED, $appointment->fresh()->status);
+
+        // Reset status for further tests
+        $appointment->update(['status' => AppointmentStatus::PENDING]);
+
+        // E. Admin can cancel any appointment
+        $this->actingAs($adminUser);
+        $serviceInstance->cancel($appointment);
+        $this->assertEquals(AppointmentStatus::CANCELLED, $appointment->fresh()->status);
+    }
+
+    public function test_appointment_cancellation_service_performs_transactional_updates_and_sends_notifications()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+
+        // 1. Create Patient
+        $patientUser = User::factory()->create(['role' => Role::PATIENT]);
+        $patient = Patient::create(['user_id' => $patientUser->id, 'dob' => '1995-05-15', 'weight' => 70, 'height' => 175]);
+
+        // 2. Create Doctor
+        $doctorUser = User::factory()->create(['role' => Role::DOCTOR]);
+        $doctor = Doctor::create(['user_id' => $doctorUser->id, 'specialization' => \App\Enums\Specialization::CARDIOLOGY]);
+
+        // 3. Create Service
+        $service = Service::create([
+            'name' => 'Cardio Consultation',
+            'description' => 'Test cardiology service description',
+            'price' => 1500,
+            'specialization' => \App\Enums\Specialization::CARDIOLOGY
+        ]);
+
+        // 4. Create Schedule and TimeSlot
+        $schedule = Schedule::create([
+            'doctor_id' => $doctor->id,
+            'date' => now()->addDay()->format('Y-m-d'),
+            'start_time' => '09:00:00',
+            'end_time' => '17:00:00',
+            'slot_duration_minutes' => 60
+        ]);
+        $timeSlot = TimeSlot::create(['schedule_id' => $schedule->id, 'start_time' => '10:00:00', 'end_time' => '11:00:00', 'status' => TimeSlotStatus::BOOKED]);
+
+        // 5. Create Appointment (Confirmed)
+        $appointment = Appointment::create([
+            'patient_id' => $patient->id,
+            'doctor_id' => $doctor->id,
+            'service_id' => $service->id,
+            'time_slot_id' => $timeSlot->id,
+            'status' => AppointmentStatus::CONFIRMED,
+        ]);
+
+        // Act as Patient
+        $this->actingAs($patientUser);
+
+        // Run cancellation service
+        $serviceInstance = app(\App\Services\AppointmentCancellationService::class);
+        $serviceInstance->cancel($appointment);
+
+        // Assert appointment is CANCELLED
+        $this->assertEquals(AppointmentStatus::CANCELLED, $appointment->fresh()->status);
+
+        // Assert TimeSlot is AVAILABLE
+        $this->assertEquals(TimeSlotStatus::AVAILABLE, $timeSlot->fresh()->status);
+
+        // Assert Notification was sent
+        \Illuminate\Support\Facades\Notification::assertSentTo(
+            $patientUser,
+            \App\Notifications\AppointmentCancelledNotification::class,
+            function ($notification) use ($appointment) {
+                return $notification->appointment->id === $appointment->id;
+            }
+        );
+    }
 }

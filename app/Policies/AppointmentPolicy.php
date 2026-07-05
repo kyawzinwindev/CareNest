@@ -103,4 +103,24 @@ class AppointmentPolicy
     {
         return false;
     }
+
+    /**
+     * Determine whether the user can cancel the appointment.
+     */
+    public function cancel(User $user, Appointment $appointment): bool
+    {
+        if ($user->role === Role::ADMIN) {
+            return true;
+        }
+
+        if ($user->role === Role::DOCTOR) {
+            return $user->doctor && $user->doctor->id === $appointment->doctor_id;
+        }
+
+        if ($user->role === Role::PATIENT) {
+            return $user->patient && $user->patient->id === $appointment->patient_id;
+        }
+
+        return false;
+    }
 }

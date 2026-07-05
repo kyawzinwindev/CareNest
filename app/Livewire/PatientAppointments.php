@@ -40,39 +40,16 @@ class PatientAppointments extends Component
     {
         $appointment = Appointment::findOrFail($id);
 
-        // Ensure ownership
-        if ($appointment->patient_id !== Auth::user()->patient?->id) {
-            abort(403);
-        }
-
-        // Only allow cancellation if pending
-        if ($appointment->status !== AppointmentStatus::PENDING) {
-            session()->flash('error', 'Only pending appointments can be cancelled.');
-            return;
-        }
-
         try {
-            DB::transaction(function () use ($appointment) {
-                // Lock slot
-                $timeSlot = $appointment->time_slot()->lockForUpdate()->first();
-
-                // Update appointment status
-                $appointment->update([
-                    'status' => AppointmentStatus::CANCELLED
-                ]);
-
-                // Free up the time slot
-                if ($timeSlot) {
-                    $timeSlot->update([
-                        'status' => TimeSlotStatus::AVAILABLE
-                    ]);
-                }
-            });
+            $service = app(\App\Services\AppointmentCancellationService::class);
+            $service->cancel($appointment);
 
             session()->flash('message', 'Appointment cancelled successfully.');
 
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            abort(403, $e->getMessage());
         } catch (\Exception $e) {
-            session()->flash('error', 'Could not cancel appointment. Please try again.');
+            session()->flash('error', $e->getMessage() ?: 'Could not cancel appointment. Please try again.');
         }
     }
 

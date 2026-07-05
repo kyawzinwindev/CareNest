@@ -73,7 +73,7 @@
 
                         <!-- Actions -->
                         <div class="w-full md:w-auto flex justify-end shrink-0">
-                            @if ($appointment->status === App\Enums\AppointmentStatus::PENDING)
+                            @if ($appointment->status === App\Enums\AppointmentStatus::PENDING || $appointment->status === App\Enums\AppointmentStatus::CONFIRMED)
                                 <button wire:click="cancelAppointment({{ $appointment->id }})"
                                     wire:confirm="Are you sure you want to cancel this appointment?"
                                     class="text-xs font-semibold text-rose-400 hover:text-rose-350 hover:bg-rose-500/10 px-3.5 py-2 rounded-xl border border-rose-500/20 hover:border-rose-500/30 transition-all w-full md:w-auto text-center">

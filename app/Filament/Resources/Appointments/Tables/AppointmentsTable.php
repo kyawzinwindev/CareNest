@@ -69,6 +69,32 @@ class AppointmentsTable
             ])
             ->actions([
                 EditAction::make(),
+                Action::make('cancel')
+                    ->label('Cancel')
+                    ->color('danger')
+                    ->icon('heroicon-o-x-circle')
+                    ->requiresConfirmation()
+                    ->visible(fn (\App\Models\Appointment $record): bool =>
+                        in_array($record->status, [AppointmentStatus::PENDING, AppointmentStatus::CONFIRMED]) &&
+                        auth()->user()->can('cancel', $record)
+                    )
+                    ->action(function (\App\Models\Appointment $record) {
+                        try {
+                            $service = app(\App\Services\AppointmentCancellationService::class);
+                            $service->cancel($record);
+
+                            Notification::make()
+                                ->title('Appointment cancelled successfully.')
+                                ->success()
+                                ->send();
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Error cancelling appointment')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
             ]);
     }
 }
