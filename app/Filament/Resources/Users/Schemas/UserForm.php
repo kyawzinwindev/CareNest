@@ -22,7 +22,10 @@ class UserForm
         return $schema
             ->components([
                 TextInput::make('name')->required(),
-                TextInput::make('email')->required(),
+                TextInput::make('email')
+                    ->email()
+                    ->unique(ignoreRecord: true)
+                    ->required(),
                 TextInput::make('password')
                     ->password()
                     ->required(fn($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord)
