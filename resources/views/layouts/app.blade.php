@@ -35,9 +35,10 @@
 
                 <!-- Navigation Links -->
                 <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
-                    <a href="{{ url('/') }}" class="text-slate-300 hover:text-white transition-colors">Home</a>
+                    <a href="{{ url('/') }}" class="{{ request()->is('/') ? 'text-cyan-400 font-bold' : 'text-slate-300 hover:text-white' }} transition-colors">Home</a>
                     <a href="{{ url('/') }}#about" class="text-slate-300 hover:text-white transition-colors">Our CareNest</a>
                     <a href="{{ url('/') }}#specialties" class="text-slate-300 hover:text-white transition-colors">Specialties</a>
+                    <a href="{{ route('blogs.index') }}" class="{{ request()->routeIs('blogs.*') ? 'text-cyan-400 font-bold' : 'text-slate-300 hover:text-white' }} transition-colors">Blogs</a>
                 </nav>
 
                 <!-- Actions -->
@@ -131,6 +132,64 @@
             <p class="mt-2 text-xs text-slate-600">Premium Antigravity Interface Design for Patients</p>
         </div>
     </footer>
+
+    <!-- Floating Contact Button (FAB) -->
+    <div x-data="{ open: false }" class="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-3">
+        <!-- Small Sub-Buttons -->
+        <div x-show="open"
+             x-transition:enter="transition ease-out duration-300 transform"
+             x-transition:enter-start="opacity-0 translate-y-8 scale-75"
+             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+             x-transition:leave="transition ease-in duration-200 transform"
+             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+             x-transition:leave-end="opacity-0 translate-y-8 scale-75"
+             class="flex flex-col items-center gap-3 mb-1"
+             style="display: none;">
+            
+            <!-- Call Action -->
+            <a href="tel:+959123456789" 
+               title="Call CareNest Clinic"
+               class="w-12 h-12 rounded-full bg-slate-900/95 backdrop-blur-md border border-slate-800 text-cyan-400 hover:text-cyan-300 hover:border-cyan-500/50 flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.824-1.802-5.14-4.117-6.942-6.942l1.293-.97c.362-.272.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
+                </svg>
+            </a>
+
+            <!-- Email Action -->
+            <a href="mailto:support@carenest.com" 
+               title="Email Support"
+               class="w-12 h-12 rounded-full bg-slate-900/95 backdrop-blur-md border border-slate-800 text-violet-400 hover:text-violet-300 hover:border-violet-500/50 flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                </svg>
+            </a>
+
+            <!-- Messenger Action -->
+            <a href="https://m.me/yourpage" 
+               target="_blank"
+               rel="noopener noreferrer"
+               title="Facebook Messenger"
+               class="w-12 h-12 rounded-full bg-slate-900/95 backdrop-blur-md border border-slate-800 text-pink-400 hover:text-pink-300 hover:border-pink-500/50 flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-5 h-5">
+                    <path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.914 1.448 5.518 3.7 7.208V22l3.355-1.843c.895.248 1.84.383 2.82.383 5.523 0 10-4.146 10-9.258C22 6.145 17.523 2 12 2Zm1.077 12.029-2.73-2.907-5.328 2.907 5.86-6.223 2.73 2.907 5.328-2.907-5.86 6.223Z"/>
+                </svg>
+            </a>
+        </div>
+
+        <!-- Main Toggle FAB Button -->
+        <button @click="open = !open"
+                :class="open ? 'bg-gradient-to-r from-rose-500 to-red-600 shadow-rose-500/20 scale-105' : 'bg-gradient-to-tr from-cyan-400 to-violet-600 shadow-cyan-500/20'"
+                class="w-14 h-14 rounded-full text-slate-900 flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none cursor-pointer">
+            <!-- Chat Bubble Icon (Shown when closed) -->
+            <svg x-show="!open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a.598.598 0 0 1-.78-.78 5.987 5.987 0 0 1 1.014-5.362C4.73 13.56 4.5 12.8 4.5 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+            </svg>
+            <!-- Close Icon (Shown when open) -->
+            <svg x-show="open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6" style="display: none;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
 
     @livewireScripts
 </body>

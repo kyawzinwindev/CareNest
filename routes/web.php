@@ -18,6 +18,8 @@ Route::middleware(['patient.only'])->group(function () {
         ->name('appointments.medical-record')
         ->middleware('auth');
     Route::get('/profile', UserProfile::class)->name('profile')->middleware('auth');
+    Route::get('/blogs', [App\Http\Controllers\BlogController::class, 'index'])->name('blogs.index');
+    Route::get('/blogs/{slug}', [App\Http\Controllers\BlogController::class, 'show'])->name('blogs.show');
 });
 
 Route::get('/login', Login::class)->name('login')->middleware('guest');

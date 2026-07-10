@@ -282,5 +282,34 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         }
+
+        // 13. Create sample blogs
+        $blogs = [
+            [
+                'title' => '10 Tips for Maintaining Cardiovascular Health',
+                'slug' => '10-tips-for-maintaining-cardiovascular-health',
+                'description' => '<p>Your heart is the engine of your body. Keeping it healthy is vital for long-term wellness. Here are ten actionable tips to optimize your heart health:</p><ul><li><strong>Exercise regularly:</strong> Aim for at least 150 minutes of moderate-intensity aerobic exercise per week.</li><li><strong>Eat a balanced diet:</strong> Prioritize whole grains, leafy greens, healthy fats, and lean proteins.</li><li><strong>Monitor blood pressure:</strong> Get regular checkups to track and manage your numbers.</li><li><strong>Limit alcohol and quit smoking:</strong> Both have direct adverse effects on cardiac muscle.</li></ul>',
+                'image' => null,
+                'user_id' => 1, // Root User
+            ],
+            [
+                'title' => 'Understanding Pediatric Growth Charts',
+                'slug' => 'understanding-pediatric-growth-charts',
+                'description' => '<p>As a parent, tracking your child\'s development can be overwhelming. Growth charts are essential tools that pediatricians use to ensure your child is developing properly. They measure weight, height, and head circumference over time.</p><blockquote>Growth charts are not test scores; there is no "correct" percentile. Consistent growth along a child\'s own growth curve is the key indicator of health.</blockquote>',
+                'image' => null,
+                'user_id' => 2, // Admin User
+            ],
+            [
+                'title' => 'The Ultimate Guide to Modern Skincare Routines',
+                'slug' => 'the-ultimate-guide-to-modern-skincare-routines',
+                'description' => '<p>Dermatology highlights that healthy skin starts with understanding your skin type. Whether your skin is dry, oily, sensitive, or combination, a consistent daily routine is vital.</p><h2>The Core Routine:</h2><ol><li><strong>Cleansing:</strong> Wash away dirt and oil morning and night.</li><li><strong>Hydration:</strong> Moisturize to lock in hydration and support the skin barrier.</li><li><strong>Protection:</strong> Apply broad-spectrum SPF 30+ sunscreen daily, even on cloudy days.</li></ol>',
+                'image' => null,
+                'user_id' => 1, // Root User
+            ]
+        ];
+
+        foreach ($blogs as $blogData) {
+            \App\Models\Blog::create($blogData);
+        }
     }
 }

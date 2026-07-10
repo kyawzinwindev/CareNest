@@ -3,11 +3,13 @@
 namespace App\Providers;
 
 use App\Models\Appointment;
+use App\Models\Blog;
 use App\Models\Payment;
 use App\Models\Schedule;
 use App\Models\Service;
 use App\Models\User;
 use App\Policies\AppointmentPolicy;
+use App\Policies\BlogPolicy;
 use App\Policies\PaymentPolicy;
 use App\Policies\SchedulePolicy;
 use App\Policies\ServicePolicy;
@@ -35,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Appointment::class, AppointmentPolicy::class);
         Gate::policy(Payment::class, PaymentPolicy::class);
         Gate::policy(Service::class, ServicePolicy::class);
+        Gate::policy(Blog::class, BlogPolicy::class);
 
         Payment::observe(\App\Observers\PaymentObserver::class);
         Appointment::observe(\App\Observers\AppointmentObserver::class);
