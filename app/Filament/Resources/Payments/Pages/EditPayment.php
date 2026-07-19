@@ -6,6 +6,7 @@ use App\Filament\Resources\Payments\PaymentResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
+use Override;
 
 class EditPayment extends EditRecord
 {
@@ -17,5 +18,11 @@ class EditPayment extends EditRecord
             ViewAction::make(),
             DeleteAction::make(),
         ];
+    }
+
+    #[Override]
+    protected function getRedirectUrl(): ?string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }

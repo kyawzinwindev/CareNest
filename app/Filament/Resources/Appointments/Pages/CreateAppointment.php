@@ -89,4 +89,10 @@ class CreateAppointment extends CreateRecord
             ]);
         }
     }
+
+    #[Override]
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

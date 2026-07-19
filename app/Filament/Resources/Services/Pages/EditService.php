@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Services\Pages;
 use App\Filament\Resources\Services\ServiceResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Override;
 
 class EditService extends EditRecord
 {
@@ -15,5 +16,11 @@ class EditService extends EditRecord
         return [
             DeleteAction::make(),
         ];
+    }
+
+    #[Override]
+    protected function getRedirectUrl(): ?string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }

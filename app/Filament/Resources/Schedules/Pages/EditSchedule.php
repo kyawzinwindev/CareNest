@@ -6,6 +6,7 @@ use App\Filament\Resources\Schedules\ScheduleResource;
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Override;
 
 class EditSchedule extends EditRecord
 {
@@ -34,5 +35,11 @@ class EditSchedule extends EditRecord
 
             $this->halt();
         }
+    }
+
+    #[Override]
+    protected function getRedirectUrl(): ?string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }

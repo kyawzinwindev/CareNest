@@ -22,4 +22,10 @@ class CreateSchedule extends CreateRecord
 
         return $data;
     }
+
+    #[Override]
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

@@ -554,4 +554,62 @@ class CareNestBusinessLogicTest extends TestCase
             }
         );
     }
+
+    public function test_deleting_appointment_cascades_to_payment()
+    {
+        // 1. Create Patient
+        $patientUser = User::factory()->create(['role' => Role::PATIENT]);
+        $patient = Patient::create(['user_id' => $patientUser->id, 'dob' => '1995-05-15', 'weight' => 70, 'height' => 175]);
+
+        // 2. Create Doctor
+        $doctorUser = User::factory()->create(['role' => Role::DOCTOR]);
+        $doctor = Doctor::create(['user_id' => $doctorUser->id, 'specialization' => \App\Enums\Specialization::CARDIOLOGY]);
+
+        // 3. Create Service
+        $service = Service::create([
+            'name' => 'Cardio Consultation',
+            'description' => 'Test cardiology service description',
+            'price' => 1500,
+            'specialization' => \App\Enums\Specialization::CARDIOLOGY
+        ]);
+
+        // 4. Create Schedule and TimeSlot
+        $schedule = Schedule::create([
+            'doctor_id' => $doctor->id,
+            'date' => now()->addDay()->format('Y-m-d'),
+            'start_time' => '09:00:00',
+            'end_time' => '17:00:00',
+            'slot_duration_minutes' => 60
+        ]);
+        $timeSlot = TimeSlot::create(['schedule_id' => $schedule->id, 'start_time' => '10:00:00', 'end_time' => '11:00:00', 'status' => TimeSlotStatus::BOOKED]);
+
+        // 5. Create Appointment
+        $appointment = Appointment::create([
+            'patient_id' => $patient->id,
+            'doctor_id' => $doctor->id,
+            'service_id' => $service->id,
+            'time_slot_id' => $timeSlot->id,
+            'status' => AppointmentStatus::CONFIRMED,
+        ]);
+
+        // 6. Create Payment
+        $payment = Payment::create([
+            'appointment_id' => $appointment->id,
+            'amount' => 1500,
+            'method' => PaymentMethod::CARD,
+            'status' => PaymentStatus::PAID,
+            'screenshot' => 'payments/dummy.png',
+            'paid_at' => now(),
+        ]);
+
+        $this->assertDatabaseHas('appointments', ['id' => $appointment->id]);
+        $this->assertDatabaseHas('payments', ['id' => $payment->id]);
+
+        // Delete Appointment
+        $appointment->delete();
+
+        // Assert both are deleted from database
+        $this->assertDatabaseMissing('appointments', ['id' => $appointment->id]);
+        $this->assertDatabaseMissing('payments', ['id' => $payment->id]);
+    }
 }
