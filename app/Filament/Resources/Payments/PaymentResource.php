@@ -64,12 +64,6 @@ class PaymentResource extends Resource
         return auth()->user()?->role === \App\Enums\Role::ROOT || auth()->user()?->role === \App\Enums\Role::ADMIN;
     }
 
-    #[Override]
-    public static function canDelete(Model $record): bool
-    {
-        return false;
-    }
-
     public static function getPages(): array
     {
         return [

@@ -51,3 +51,11 @@ Route::middleware(['auth', 'patient.only'])->group(function () {
         ]);
     });
 });
+
+Route::get('/user-manual', function () {
+    $path = public_path('manuals/user-manual.pdf');
+    if (!file_exists($path)) {
+        abort(404);
+    }
+    return response()->download($path, 'CareNest-User-Manual.pdf');
+})->name('user-manual.download');

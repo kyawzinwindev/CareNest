@@ -57,7 +57,15 @@ class PaymentPolicy
      */
     public function delete(User $user, Payment $payment): bool
     {
-        return $user->role === Role::ADMIN;
+        return $user->isRoot();
+    }
+
+    /**
+     * Determine whether the user can delete multiple models.
+     */
+    public function deleteAny(User $user): bool
+    {
+        return $user->isRoot();
     }
 
     /**
@@ -73,6 +81,6 @@ class PaymentPolicy
      */
     public function forceDelete(User $user, Payment $payment): bool
     {
-        return $user->role === Role::ADMIN;
+        return $user->isRoot();
     }
 }

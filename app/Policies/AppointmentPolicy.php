@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Enums\Role;
+use App\Enums\AppointmentStatus;
 use App\Models\Appointment;
 use App\Models\User;
 
@@ -13,8 +14,8 @@ class AppointmentPolicy
      */
     public function before(User $user, string $ability): ?bool
     {
-        if ($ability === 'delete' || $ability === 'forceDelete') {
-            return false;
+        if (in_array($ability, ['delete', 'deleteAny', 'forceDelete'])) {
+            return null;
         }
 
         if ($user->role === Role::ROOT) {
@@ -77,7 +78,15 @@ class AppointmentPolicy
      */
     public function delete(User $user, Appointment $appointment): bool
     {
-        return false;
+        return $user->isRoot() && $appointment->status === AppointmentStatus::FINISHED;
+    }
+
+    /**
+     * Determine whether the user can delete multiple models.
+     */
+    public function deleteAny(User $user): bool
+    {
+        return $user->isRoot();
     }
 
     /**
@@ -101,7 +110,7 @@ class AppointmentPolicy
      */
     public function forceDelete(User $user, Appointment $appointment): bool
     {
-        return false;
+        return $user->isRoot() && $appointment->status === AppointmentStatus::FINISHED;
     }
 
     /**

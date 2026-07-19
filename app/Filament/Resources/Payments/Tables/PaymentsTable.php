@@ -6,7 +6,10 @@ use App\Enums\AppointmentStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Models\Appointment;
-use Filament\Actions\Action;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -46,6 +49,7 @@ class PaymentsTable
                         PaymentStatus::PENDING => 'warning',
                         PaymentStatus::PAID => 'success',
                         PaymentStatus::FAILED => 'danger',
+                        PaymentStatus::REJECTED => 'danger',
                     }),
             ])
             ->filters([
@@ -85,21 +89,20 @@ class PaymentsTable
                     ->visible(fn ($record) => $record->status === PaymentStatus::PENDING)
                     ->requiresConfirmation()
                     ->action(function ($record) {
-                        DB::transaction(function () use ($record) {
-                            $record->update([
-                                'status' => PaymentStatus::FAILED,
-                            ]);
-                            $record->appointment->update([
-                                'status' => AppointmentStatus::CANCELLED,
-                            ]);
-                        });
+                        app(\App\Services\PaymentRejectionService::class)->reject($record);
 
                         \Filament\Notifications\Notification::make()
                             ->title('Payment Rejected')
-                            ->body('The payment has been marked as Failed and the appointment is now Cancelled.')
+                            ->body('The payment has been rejected, the appointment has been cancelled, and the slot is now available.')
                             ->danger()
                             ->send();
                     }),
+                DeleteAction::make(),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 }

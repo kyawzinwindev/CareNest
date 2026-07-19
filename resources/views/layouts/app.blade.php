@@ -39,6 +39,7 @@
                     <a href="{{ url('/') }}#about" class="text-slate-300 hover:text-white transition-colors">Our CareNest</a>
                     <a href="{{ url('/') }}#specialties" class="text-slate-300 hover:text-white transition-colors">Specialties</a>
                     <a href="{{ route('blogs.index') }}" class="{{ request()->routeIs('blogs.*') ? 'text-cyan-400 font-bold' : 'text-slate-300 hover:text-white' }} transition-colors">Blogs</a>
+
                 </nav>
 
                 <!-- Actions -->
@@ -96,6 +97,12 @@
                                         Filament Dashboard
                                     </a>
                                 @endif
+                                <a href="{{ route('user-manual.download') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-emerald-400">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                                    </svg>
+                                    User Manual
+                                </a>
                                 <form method="POST" action="{{ route('logout') }}" class="block w-full">
                                     @csrf
                                     <button type="submit" class="flex w-full items-center gap-2 px-3 py-2.5 rounded-xl text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors text-left font-medium">
@@ -111,6 +118,30 @@
                         <a href="{{ route('login') }}" class="text-sm text-slate-300 hover:text-white transition-colors font-medium">Log in</a>
                         <a href="{{ route('register') }}" class="hidden sm:inline-block text-sm text-slate-300 hover:text-white transition-colors font-medium">Register</a>
                     @endauth
+
+                    <!-- Minimalist Cute User Manual Link (Always Visible) -->
+                    <div x-data="{ showTooltip: false }" class="relative flex items-center">
+                        <a href="{{ route('user-manual.download') }}" 
+                           @mouseenter="showTooltip = true" 
+                           @mouseleave="showTooltip = false"
+                           class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-900/60 border border-slate-800 text-slate-400 hover:text-cyan-300 hover:bg-slate-800 hover:border-slate-700 hover:scale-110 hover:rotate-6 transition-all duration-200 focus:outline-none cursor-pointer"
+                        >
+                            <span class="text-sm font-extrabold font-['Outfit']">?</span>
+                        </a>
+                        <!-- Subtle Alpine.js Tooltip -->
+                        <div x-show="showTooltip" 
+                             x-transition:enter="transition ease-out duration-150"
+                             x-transition:enter-start="opacity-0 translate-y-1 scale-95"
+                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                             x-transition:leave="transition ease-in duration-100"
+                             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                             x-transition:leave-end="opacity-0 translate-y-1 scale-95"
+                             class="absolute top-10 left-1/2 -translate-x-1/2 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-medium text-slate-300 whitespace-nowrap shadow-xl z-50 pointer-events-none"
+                             style="display: none;"
+                        >
+                            User Manual
+                        </div>
+                    </div>
 
                     <a href="{{ url('/booking') }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-xl text-slate-900 bg-gradient-to-r from-cyan-400 to-violet-500 hover:from-cyan-300 hover:to-violet-400 hover:scale-105 active:scale-95 transition-all duration-200 shadow-md shadow-cyan-500/10">
                         Book Appointment
@@ -188,8 +219,9 @@
             <svg x-show="open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6" style="display: none;">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>
-        </button>
     </div>
+
+
 
     @livewireScripts
 </body>

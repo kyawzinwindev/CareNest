@@ -47,6 +47,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->role !== Role::PATIENT;
     }
 
+    public function isRoot(): bool
+    {
+        return $this->role === Role::ROOT;
+    }
+
     public function doctor(): HasOne
     {
         return $this->hasOne(Doctor::class);

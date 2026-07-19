@@ -124,7 +124,7 @@ class CareNestBusinessLogicTest extends TestCase
         $this->assertEquals(TimeSlotStatus::AVAILABLE, $timeSlot->fresh()->status);
     }
 
-    public function test_appointment_deletion_denied_for_all_roles()
+    public function test_appointment_deletion_restricted_to_root_only()
     {
         $rootUser = User::factory()->create(['role' => Role::ROOT]);
         $adminUser = User::factory()->create(['role' => Role::ADMIN]);
@@ -158,10 +158,17 @@ class CareNestBusinessLogicTest extends TestCase
             'status' => AppointmentStatus::CONFIRMED,
         ]);
 
-        // Assert ROOT cannot delete
+        // Assert ROOT cannot delete when status is CONFIRMED
         $this->actingAs($rootUser);
         $this->assertFalse($rootUser->can('delete', $appointment));
         $this->assertFalse($rootUser->can('forceDelete', $appointment));
+
+        // Update status to FINISHED
+        $appointment->update(['status' => AppointmentStatus::FINISHED]);
+
+        // Assert ROOT can delete when status is FINISHED
+        $this->assertTrue($rootUser->can('delete', $appointment));
+        $this->assertTrue($rootUser->can('forceDelete', $appointment));
 
         // Assert ADMIN cannot delete
         $this->actingAs($adminUser);
@@ -177,6 +184,122 @@ class CareNestBusinessLogicTest extends TestCase
         $this->actingAs($patientUser);
         $this->assertFalse($patientUser->can('delete', $appointment));
         $this->assertFalse($patientUser->can('forceDelete', $appointment));
+    }
+
+    public function test_payment_deletion_restricted_to_root_only()
+    {
+        $rootUser = User::factory()->create(['role' => Role::ROOT]);
+        $adminUser = User::factory()->create(['role' => Role::ADMIN]);
+
+        $patientUser = User::factory()->create(['role' => Role::PATIENT]);
+        $patient = Patient::create(['user_id' => $patientUser->id, 'dob' => '1995-05-15', 'weight' => 70, 'height' => 175]);
+
+        $doctorUser = User::factory()->create(['role' => Role::DOCTOR]);
+        $doctor = Doctor::create(['user_id' => $doctorUser->id, 'specialization' => \App\Enums\Specialization::CARDIOLOGY]);
+
+        $service = Service::create([
+            'name' => 'Cardio Consultation',
+            'description' => 'Test cardiology service description',
+            'price' => 1500,
+            'specialization' => \App\Enums\Specialization::CARDIOLOGY
+        ]);
+
+        $schedule = Schedule::create([
+            'doctor_id' => $doctor->id,
+            'date' => now()->addDay()->format('Y-m-d'),
+            'start_time' => '09:00:00',
+            'end_time' => '17:00:00',
+            'slot_duration_minutes' => 60
+        ]);
+        $timeSlot = TimeSlot::create(['schedule_id' => $schedule->id, 'start_time' => '10:00:00', 'end_time' => '11:00:00', 'status' => TimeSlotStatus::BOOKED]);
+
+        $appointment = Appointment::create([
+            'patient_id' => $patient->id,
+            'doctor_id' => $doctor->id,
+            'service_id' => $service->id,
+            'time_slot_id' => $timeSlot->id,
+            'status' => AppointmentStatus::PENDING,
+        ]);
+
+        $payment = Payment::create([
+            'appointment_id' => $appointment->id,
+            'amount' => 1500,
+            'method' => PaymentMethod::CARD,
+            'status' => PaymentStatus::PENDING,
+        ]);
+
+        // Assert ROOT can delete
+        $this->actingAs($rootUser);
+        $this->assertTrue($rootUser->can('delete', $payment));
+        $this->assertTrue($rootUser->can('forceDelete', $payment));
+
+        // Assert ADMIN cannot delete
+        $this->actingAs($adminUser);
+        $this->assertFalse($adminUser->can('delete', $payment));
+        $this->assertFalse($adminUser->can('forceDelete', $payment));
+    }
+
+    public function test_payment_rejection_workflow()
+    {
+        // 1. Create a Patient User & Profile
+        $patientUser = User::factory()->create(['role' => Role::PATIENT]);
+        $patient = Patient::create(['user_id' => $patientUser->id, 'dob' => '1995-05-15', 'weight' => 70, 'height' => 175]);
+
+        // 2. Create Doctor
+        $doctorUser = User::factory()->create(['role' => Role::DOCTOR]);
+        $doctor = Doctor::create(['user_id' => $doctorUser->id, 'specialization' => \App\Enums\Specialization::CARDIOLOGY]);
+
+        // 3. Create Service
+        $service = Service::create([
+            'name' => 'Cardio Consultation',
+            'description' => 'Test cardiology service description',
+            'price' => 1500,
+            'specialization' => \App\Enums\Specialization::CARDIOLOGY
+        ]);
+
+        // 4. Create Schedule and TimeSlot
+        $schedule = Schedule::create([
+            'doctor_id' => $doctor->id,
+            'date' => now()->addDay()->format('Y-m-d'),
+            'start_time' => '09:00:00',
+            'end_time' => '17:00:00',
+            'slot_duration_minutes' => 60
+        ]);
+        $timeSlot = TimeSlot::create(['schedule_id' => $schedule->id, 'start_time' => '10:00:00', 'end_time' => '11:00:00', 'status' => TimeSlotStatus::BOOKED]);
+
+        // 5. Create Appointment (Pending)
+        $appointment = Appointment::create([
+            'patient_id' => $patient->id,
+            'doctor_id' => $doctor->id,
+            'service_id' => $service->id,
+            'time_slot_id' => $timeSlot->id,
+            'status' => AppointmentStatus::PENDING,
+        ]);
+
+        // 6. Create Payment (Pending)
+        $payment = Payment::create([
+            'appointment_id' => $appointment->id,
+            'amount' => 1500,
+            'method' => PaymentMethod::CARD,
+            'status' => PaymentStatus::PENDING,
+        ]);
+
+        // 7. Perform rejection via the service
+        app(\App\Services\PaymentRejectionService::class)->reject($payment);
+
+        // 8. Assert payment status is rejected and appointment status is cancelled
+        $this->assertEquals(PaymentStatus::REJECTED, $payment->fresh()->status);
+        $this->assertEquals(AppointmentStatus::CANCELLED, $appointment->fresh()->status);
+
+        // 9. Assert time slot is available
+        $this->assertEquals(TimeSlotStatus::AVAILABLE, $timeSlot->fresh()->status);
+
+        // 10. Assert Patient received database notification stating payment was rejected
+        $notification = $patientUser->notifications()->first();
+        $this->assertNotNull($notification);
+        $this->assertEquals('Payment Rejected', $notification->title);
+        $this->assertStringContainsString('rejected', $notification->message);
+        $this->assertStringContainsString('re-book', $notification->message);
     }
 
     public function test_confirming_appointment_without_paid_payment_throws_validation_exception()
