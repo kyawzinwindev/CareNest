@@ -1,58 +1,106 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# CareNest - Online Appointment Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+CareNest is a web-based appointment management system designed to streamline scheduling workflows for both patients and healthcare administrators. Built on the TALL stack, the application delivers dynamic, real-time interface updates without requiring full page reloads.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Key Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### For Patients & Users
+- **Real-Time Booking:** Schedule, reschedule, or cancel appointments dynamically with instant availability checks.
+- **Interactive Calendar:** View available time slots and practitioner schedules through a responsive calendar interface.
+- **Automated Notifications:** Receive instant feedback and status updates for appointment confirmations and updates.
+- **Medical History & Dashboard:** Manage upcoming visits, view past appointment history, and update personal profile details.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### For Administrators & Staff
+- **Doctor & Staff Management:** Organize practitioner schedules, working hours, and department allocations.
+- **Appointment Queue Control:** Approve, reject, or reassign incoming booking requests in real time.
+- **Analytics & Reporting:** Track daily, weekly, and monthly appointment volume and capacity metrics.
+- **Role-Based Access Control:** Manage operational permissions for doctors, administrative staff, and system administrators.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Tech Stack
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **Framework:** [Laravel 11.x](https://laravel.com/)
+- **Frontend Interactivity:** [Livewire 3.x](https://livewire.laravel.com/) & [Alpine.js](https://alpinejs.dev/)
+- **Styling & UI:** [Tailwind CSS](https://tailwindcss.com/)
+- **Database:** MySQL / PostgreSQL
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+---
 
-## Agentic Development
+## System Requirements
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+- **PHP:** >= 8.2
+- **Composer:** >= 2.x
+- **Node.js:** >= 18.x & NPM
+- **Database:** MySQL 8.0+ or PostgreSQL 14+
 
-```bash
-composer require laravel/boost --dev
+---
 
-php artisan boost:install
-```
+## Installation & Setup
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Follow these steps to set up the project locally.
 
-## Contributing
+### 1. Repository Setup
+Clone the repository and navigate into the project directory:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+git clone https://github.com/kyawzinwindev/CareNest.git
+cd CareNest
 
-## Code of Conduct
+### 2. Dependency Installation
+Install backend PHP packages and frontend JavaScript dependencies:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+composer install
+npm install
 
-## Security Vulnerabilities
+### 3. Environment Configuration
+Duplicate the example environment file and generate the application key:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+cp .env.example .env
+php artisan key:generate
+
+Configure your database connection in the `.env` file:
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=carenest_db
+DB_USERNAME=root
+DB_PASSWORD=
+
+### 4. Database & Storage Migration
+Run database migrations along with seeders (if available), and link the storage directory:
+
+php artisan migrate --seed
+php artisan storage:link
+
+### 5. Compile Assets & Run Development Server
+Build frontend assets and start the local Laravel development server:
+
+npm run dev
+php artisan serve
+
+Access the application at http://127.0.0.1:8000.
+
+---
+
+## Project Architecture & Highlights
+
+CareNest leverages the TALL stack to maintain high performance with minimal complexity:
+- **Livewire Components:** Form validation, appointment calendar updates, and filtering operate reactivity without custom JavaScript API pipelines.
+- **Alpine.js Utility:** Manages localized UI state such as dropdowns, modals, and mobile navigation menus directly in the DOM.
+- **Tailwind CSS:** Provides a cohesive, responsive design tailored for accessible medical dashboards.
+
+---
+
+## Author
+
+**Kyaw Zin Win**
+- GitHub: [@kyawzinwindev](https://github.com/kyawzinwindev)
+
+---
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the [MIT License](LICENSE).
