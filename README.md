@@ -15,7 +15,6 @@ CareNest is a web-based appointment management system designed to streamline sch
 ### For Administrators & Staff
 - **Doctor & Staff Management:** Organize practitioner schedules, working hours, and department allocations.
 - **Appointment Queue Control:** Approve, reject, or reassign incoming booking requests in real time.
-- **Analytics & Reporting:** Track daily, weekly, and monthly appointment volume and capacity metrics.
 - **Role-Based Access Control:** Manage operational permissions for doctors, administrative staff, and system administrators.
 
 ---
@@ -25,7 +24,7 @@ CareNest is a web-based appointment management system designed to streamline sch
 - **Framework:** [Laravel 11.x](https://laravel.com/)
 - **Frontend Interactivity:** [Livewire 3.x](https://livewire.laravel.com/) & [Alpine.js](https://alpinejs.dev/)
 - **Styling & UI:** [Tailwind CSS](https://tailwindcss.com/)
-- **Database:** MySQL / PostgreSQL
+- **Database:** MySQL
 
 ---
 
@@ -34,7 +33,7 @@ CareNest is a web-based appointment management system designed to streamline sch
 - **PHP:** >= 8.2
 - **Composer:** >= 2.x
 - **Node.js:** >= 18.x & NPM
-- **Database:** MySQL 8.0+ or PostgreSQL 14+
+- **Database:** MySQL 8.0+ 
 
 ---
 
